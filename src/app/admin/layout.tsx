@@ -10,7 +10,6 @@ import { customTheme } from '@/app/customTheme';
 const inter = Inter({ subsets: ["latin"] });
 
 export const metadata: Metadata = {
-  title: "SoundSpace",
   description: "EGE205-Group-3",
 };
 
