@@ -13,7 +13,7 @@ from board import SCL, SDA
 from PIL import Image, ImageDraw, ImageFont
 import socketio
 
-SERVER_IP_ADDRESS = "192.168.1.20"
+SERVER_IP_ADDRESS = "192.168.X.X"
 
 # Turn off USR LEDs
 GPIO.setup("USR0", GPIO.OUT)
