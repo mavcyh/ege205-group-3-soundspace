@@ -1,24 +1,32 @@
-import { Overlay, Container, Title, Button, Text } from '@mantine/core';
+import cx from 'clsx';
+import { Title, Text, Container, Button, Overlay } from '@mantine/core';
 import classes from './Hero.module.css';
 
 export function Hero() {
   return (
-    <div className={classes.hero}>
-      <Overlay
-        gradient="linear-gradient(180deg, rgba(0, 0, 0, 0.25) 0%, rgba(0, 0, 0, .65) 40%)"
-        opacity={1}
-        zIndex={0}
-      />
-      <Container className={classes.container} size="md">
-        <Title className={classes.title}>An affordable music studio.</Title>
-        <Text className={classes.description} size="xl" mt="xl">
-          Our studio is fully automated: and mantainence is only done when it has to be done, meaning that we can pass on the savings to you.
-        </Text>
+    <div className={classes.wrapper}>
+      <Overlay color="#000" opacity={0.65} zIndex={1} />
 
-        <Button variant="gradient" size="xl" radius="xl" className={classes.control}>
-          Book Now
-        </Button>
-      </Container>
+      <div className={classes.inner}>
+        <Title className={classes.title}>
+          Professional Music Studio Rentals{' '}
+        </Title>
+
+        <Container size={640}>
+          <Text size="lg" className={classes.description}>
+            Your perfect space for recording, rehearsing, and producing music.
+          </Text>
+        </Container>
+
+        <div className={classes.controls}>
+          <Button className={classes.control} color='orange' variant="white" size="lg" component='a' href='/bookings'> 
+            Book now!
+          </Button>
+          <Button className={cx(classes.control, classes.secondaryControl)} size="lg" component='a' href='/about'>
+            About us
+          </Button>
+        </div>
+      </div>
     </div>
   );
 }
