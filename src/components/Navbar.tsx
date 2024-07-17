@@ -26,6 +26,8 @@ export const Navbar = () => {
               >About</Button>
               <Button variant="transparent" color="orange" size="md" component='a' href='/bookings' 
               >Bookings</Button>
+              {/* <Button variant="transparent" color="orange" size="md" component='a' href='/admin' 
+              >Dashboard</Button> */}
             </Group>     
 
             <Group>

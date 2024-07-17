@@ -8,6 +8,8 @@ import '@mantine/notifications/styles.css';
 import { ColorSchemeScript, MantineProvider } from '@mantine/core';
 import { customTheme } from '@/app/customTheme';
 const inter = Inter({ subsets: ["latin"] });
+import { Navbar } from "@/components/Navbar";
+import { Footer } from "@/components/Footer/Footer";
 
 export const metadata: Metadata = {
   title: "SoundSpace",
@@ -26,7 +28,9 @@ export default function RootLayout({
       </head>
       <body className={inter.className}>
         <MantineProvider theme={customTheme}>
+          <Navbar/>
           {children}
+          <Footer/>
         </MantineProvider>
       </body>
     </html>

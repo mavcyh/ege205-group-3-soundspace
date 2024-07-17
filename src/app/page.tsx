@@ -2,25 +2,23 @@ import { Metadata } from "next";
 import classes from "./page.module.css";
 import { Flex } from "@mantine/core"
 import { Hero } from "@/components/Hero/Hero";
-import { Navbar } from "@/components/Navbar";
-import { BadgeCard } from "@/components/BadgeCard/BadgeCard";
-import { Footer } from "@/components/Footer/Footer";
+import { BadgeCard1 } from "@/components/BadgeCard/BadgeCard1";
+import { BadgeCard2 } from "@/components/BadgeCard/BadgeCard2";
+import { BadgeCard3 } from "@/components/BadgeCard/BadgeCard3";
 
 export const metadata: Metadata = {
-  title: "SoundSpace | Booking",
+  title: "SoundSpace | Home",
 };
 
 export default function Home() {
   return (
     <main>
-      <Navbar/>
       <Hero/>
-      <Flex>
-        <BadgeCard/>
-        <BadgeCard/>
-        <BadgeCard/>
+      <Flex style={{width: '100%'}} justify="space-around">
+        <BadgeCard1/>
+        <BadgeCard2/>
+        <BadgeCard3/>
       </Flex>
-      <Footer/>
     </main>
   );
 }

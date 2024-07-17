@@ -2,6 +2,7 @@
 import { Anchor, Group, ActionIcon, rem, Text } from '@mantine/core'
 import { IconBrandTwitter, IconBrandYoutube, IconBrandInstagram} from '@tabler/icons-react'
 import classes from './Footer.module.css'
+import Link from 'next/link'
 
 const links = [
   { link: '/', label: 'Contact' },
@@ -14,6 +15,7 @@ const links = [
 export function Footer() {
   const items = links.map((link) => (
     <Anchor
+      component={Link}
       c="dimmed"
       key={link.label}
       href={link.link}
@@ -26,7 +28,7 @@ export function Footer() {
   ));
 
   return (
-    <div className={classes.footer}>
+    <footer className={classes.footer}>
       <div className={classes.inner}>
         <Text size='sm' style={{color: 'grey'}}>
             © {new Date().getFullYear()} SoundSpace. All rights reserved.
@@ -45,6 +47,6 @@ export function Footer() {
           </ActionIcon>
         </Group>
       </div>
-    </div>
+    </footer>
   );
 }
