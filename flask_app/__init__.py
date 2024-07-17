@@ -14,6 +14,7 @@ ns = Namespace("api")
 api = Api(app)
 api.add_namespace(ns)
 
+from flask_app.core import core, mailer
 from flask_app.socketio_events import bbbw, nextjs
 from flask_app.database import models, crud
 from flask_app.api import routes, models
