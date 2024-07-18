@@ -2,13 +2,21 @@
 import { Navbar } from "@/components/Navbar";
 import { useState } from 'react'
 import { DatePicker } from '@mantine/dates'
-import { Chip,Container, Paper, Center, Title, Flex, Stack , Button } from '@mantine/core'
+import { Chip,Container, Paper, Center, Title, Flex, Stack , Button , Checkbox} from '@mantine/core'
 import { Footer } from "@/components/Footer/Footer";
 
 export default function Bookings() {
     const [bookingDate, setBookingDate] = useState<Date | null>(new Date())
     const [startTime, setStartTime] = useState<string | null>(null)
     const [endTime, setEndTime] = useState<string | null>(null)
+    const [selectedInstruments, setSelectedInstruments] = useState<number[]>([])
+
+    const instruments = [
+        { id: 1, name: "Guitar" },
+        { id: 2, name: "Ukulele" },
+        { id: 3, name: "Flute" },
+        //dummy data
+    ]
 
     const timeslotChips1 = []
     const timeslotChips2 = []
@@ -42,7 +50,7 @@ export default function Bookings() {
     const formatTime = (time: string): string => {
         const hours = time.padStart(2, '0'); // Ensure the hour has two digits
         return `${hours}:00:00`;
-    };
+    };     
 
     const handleTimeslotClick = (timeslot: string) => {
         if (startTime === null || (startTime !== null && endTime !== null)) {
@@ -58,12 +66,18 @@ export default function Bookings() {
         }
     }
 
+    const handleInstrumentChange = (instrumentId: number) => {
+        setSelectedInstruments(prev =>
+            prev.includes(instrumentId) ? prev.filter(id => id !== instrumentId) : [...prev, instrumentId]
+        )
+    }
+
     const handleSubmit = async () => {
         const formattedDate = bookingDate ? bookingDate.toISOString().split('T')[0] : '';
         const formattedStartTime = startTime ? formatTime(startTime) : '';
-        const formattedEndTime = endTime ? formatTime(endTime) : ''
+        const formattedEndTime = endTime ? formatTime(endTime) : '';
 
-        const response = await fetch("http://192.168.0.160:5000/bookings", {
+        const bookingResponse = await fetch("http://192.168.88.9:5000/bookings", {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
@@ -71,22 +85,41 @@ export default function Bookings() {
             body: JSON.stringify({
                 bookingDate: formattedDate,
                 startTime: formattedStartTime,
-                endTime: formattedEndTime
+                endTime: formattedEndTime,
+                instrumentIds: selectedInstruments
             }),
-        })
-        if (response.status === 409) {
-            const data = await response.json();
+        });
+        if (bookingResponse.status === 409) {
+            const data = await bookingResponse.json();
             alert(data.message);
         }
 
-        if (response.status != 201 && response.status != 200){
-            const data = await response.json()
+        if (bookingResponse.status != 201 && bookingResponse.status != 200){
+            const data = await bookingResponse.json()
             alert(data.message)
         }
         else{
             //successful
         }
-    }
+
+        // const instrumentResponse = await fetch("http://192.168.88.9:5000/instruments", {
+        //     method: 'POST',
+        //     headers: {07-01	04:00:00
+        //         'Content-Type': 'application/json',
+        //     },
+        //     body: JSON.stringify({
+        //         instrumentName: "Flute",
+        //         nameAbbr: "Flute",
+        //     }),
+        // });
+    
+        // if (instrumentResponse.status !== 201 && instrumentResponse.status !== 200) {
+        //     const data = await instrumentResponse.json();
+        //     alert(data.message);
+        // } else {
+        //     //successful
+        // }
+    };
 
     return (
         <>
@@ -118,6 +151,21 @@ export default function Bookings() {
                     </Paper>
                 </Container>
             </Flex>
+            <Center mt={20}>
+                <Flex justify="center" align="center" direction="column">
+                    <Title size='h4' mt={10}>Select Instruments</Title>
+                    <Stack mt={5}>
+                        {instruments.map(instrument => (
+                            <Checkbox
+                                key={instrument.id}
+                                label={instrument.name}
+                                checked={selectedInstruments.includes(instrument.id)}
+                                onChange={() => handleInstrumentChange(instrument.id)}
+                            />
+                        ))}
+                    </Stack>
+                </Flex>
+            </Center>
             <Center mt={20}>
                 <Button onClick={handleSubmit}>Submit Booking</Button>
             </Center>
