@@ -1,5 +1,5 @@
 "use client"
-import { Anchor, Group, ActionIcon, rem, Text } from '@mantine/core'
+import { Anchor, Group, ActionIcon, rem, Text, Box } from '@mantine/core'
 import { IconBrandTwitter, IconBrandYoutube, IconBrandInstagram} from '@tabler/icons-react'
 import classes from './Footer.module.css'
 import Link from 'next/link'
@@ -29,7 +29,7 @@ export function Footer() {
 
   return (
     <footer className={classes.footer}>
-      <div className={classes.inner}>
+      <Box className={classes.inner}>
         <Text size='sm' style={{color: 'grey'}}>
             © {new Date().getFullYear()} SoundSpace. All rights reserved.
         </Text>
@@ -46,7 +46,7 @@ export function Footer() {
             <IconBrandInstagram style={{ width: rem(18), height: rem(18) }} stroke={1.5} />
           </ActionIcon>
         </Group>
-      </div>
+      </Box>
     </footer>
   );
 }

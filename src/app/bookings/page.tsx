@@ -8,17 +8,17 @@ export default function Bookings() {
     const timeslotChips1 = []
     const timeslotChips2 = []
     for (let i = 0; i < 12; i++) {
-        timeslotChips1.push(<Chip value={i.toString()}>{`${i}:00`}</Chip>)
+        timeslotChips1.push(<Chip value={i}>{`${i.toString().padStart(2, '0')}:00`}</Chip>)
     }
     for (let i = 12; i < 24; i++) {
-        timeslotChips2.push(<Chip value={i.toString()}>{`${i}:00`}</Chip>)
+        timeslotChips2.push(<Chip value={i}>{`${i}:00`}</Chip>)
     }
 
     return (
         <>
             <Center><Title size='h3' mt={40}>Reserve a Timeslot</Title></Center>
             <Center>
-                <Flex justify="center" style={{width: '70%'}}>
+                <Flex justify="center" style={{width: '40%'}}>
                     <Container mt={20}>                
                         <Paper withBorder shadow="xl" p={30} mt={5} style={{width: '370px', borderColor: 'orange'}} radius="md">
                             <DatePicker size="md" value={value} onChange={setValue} />
