@@ -127,7 +127,9 @@ export default function Bookings() {
                             radius="md">
                             <OrderSummary selectedItems={selectedItems}/>
                             <Divider className={classes.divider} my={20}/>
-                            <Button className={classes.book} color='blue'>Book</Button>
+                            <form onSubmit={form.onSubmit((values) => console.log(values))}>
+                                <Button className={classes.book} type="submit" color='blue'>Book</Button>
+                            </form> 
                             <Text className={classes.total}><span style={{fontWeight: 'bold'}}>Total:</span> ${selectedItems.reduce((acc, item) => acc + item.price, 0).toFixed(2)}</Text>
                             <Center>
                                 <TextInput
