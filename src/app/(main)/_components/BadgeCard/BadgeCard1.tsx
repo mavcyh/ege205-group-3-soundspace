@@ -4,7 +4,6 @@ import classes from './BadgeCard.module.css';
 import NextImage from 'next/image'
 import musicInstruments from '@/assets/home-musicInstruments.jpg'
 
-
 const mockdata = {
   image:
     musicInstruments,

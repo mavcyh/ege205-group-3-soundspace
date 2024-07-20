@@ -1,14 +1,15 @@
-"use client"
-import { Navbar } from "@/components/Navbar";
-import { Container, Title, Text, Image, Center, Flex, Group } from '@mantine/core'
-import aboutUsGuitar from '../../assets/aboutus-guitar.jpg'
-import NextImage from 'next/image'
-import { Footer } from "@/components/Footer/Footer";
+import { Metadata } from 'next';
+import { Container, Title, Text, Image, Center, Flex, Group } from '@mantine/core';
+import aboutUsGuitar from '@/assets/aboutus-guitar.jpg';
+import NextImage from 'next/image';
+
+export const metadata: Metadata = {
+    title: "SoundSpace | About",
+};
 
 export default function About() {
     return(
         <>
-            <Navbar/>
             <Container mt={10} >
                 <Center>
                     <Title size="h3" mt={40}>About Us</Title>
@@ -23,9 +24,9 @@ export default function About() {
                     <Center>
                         <Title size="h3" mt={40} mb={10}>Our Mission</Title>
                     </Center>
-                    <Group mt={5}>
+                    <Group mt={5} justify='center' >
                         <Image component={NextImage} src={aboutUsGuitar} alt='aboutUsGuitar' 
-                        h={300} ml={315} fit='contain' w="auto" style={{paddingTop: '8px', borderRadius: '1000px'}}/>
+                        h={300} fit='contain' w="auto" style={{paddingTop: '8px', borderRadius: '1000px'}}/>
                     </Group>
                     <Group>
                         <Text style={{textAlign: 'center'}} mt={30}>
@@ -41,7 +42,6 @@ export default function About() {
                         </Text> 
                     </Group>
             </Container>
-            <Footer/>
         </>
     );
 }
