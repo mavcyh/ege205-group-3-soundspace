@@ -14,7 +14,6 @@ interface MockData {
 const data = [
     { id: 'Fender Stratocaster', desc: '+ $2.50', price: 2.50 },
     { id: 'Ibanez SR300E', desc: '+ $1.50', price: 1.50 },
-    { id: 'Ibanez SR300E', desc: '+ $1.50', price: 1.50 },
 ];
 const OrderSummary: React.FC<{ selectedItems: MockData[] }> = ({ selectedItems }) => {
     return (
