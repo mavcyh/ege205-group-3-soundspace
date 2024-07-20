@@ -1,8 +1,6 @@
 "use client"
 import { Button, Checkbox, Group, TextInput, Container, Title, PasswordInput, Anchor, Paper, Center } from '@mantine/core';
 import { useForm } from '@mantine/form';
-import { Navbar } from "@/components/Navbar";
-import { Footer } from "@/components/Footer/Footer";
 
 export default function signIn() {
   const form = useForm({
@@ -22,8 +20,7 @@ export default function signIn() {
   })
 
   return (
-    <>
-        <Navbar/>
+    <>       
         <Container size={500} my={40}>
             <Center>
                 <Title size='h3'>Sign in</Title>
@@ -77,7 +74,6 @@ export default function signIn() {
                 </form>
             </Paper>
         </Container>    
-        <Footer/>
     </> 
   )
 }
