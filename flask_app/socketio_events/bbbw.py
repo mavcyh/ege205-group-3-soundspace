@@ -1,5 +1,6 @@
 from flask import request
 from flask_app import socketio
+# from flask_app.database.crud import write_volume_level_data
 
 #region SOCKETIO EVENTS
 
@@ -18,7 +19,7 @@ def bbbwSessionInfo_updateVolumeLevel(data):
     if data["volume_level"] >= 10:
         TxData = {}
         socketio.emit("serverToSessionInfo_maximumVolumeExceeded", TxData)
-
+    # write_volume_level_data([data["volume_level"]])
 #endregion bbbwSessionInfo
 
 #region bbbwMiscellanous

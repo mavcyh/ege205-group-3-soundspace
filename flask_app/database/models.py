@@ -26,20 +26,16 @@ class Booking(db.Model):
 
     instruments = db.relationship('Instrument', secondary=booking_instrument,
         backref=db.backref('bookings'))
-    
-    def to_json(self):
-        return {
-            "id": self.id,
-            "bookingDate": self.booking_date,
-            "startTime": self.start_time,
-            "endTime": self.end_time
-        }
-    
-    #device_dropped = db.Column(db.Boolean, default=False)
-    #locker number to be placed with association table
-
+        
 # TODO method to dynamically change "wear" of instruments e.g. 60% after 100 hours of active use + 3 months passive deterioration
 class Instrument(db.Model):
     instrument_id = db.Column(db.Integer, primary_key=True)
     instrument_name = db.Column(db.String(255), nullable=False)
     name_abbr = db.Column(db.String(15), nullable=False)
+    locker_no = db.Column(db.Integer, nullable=False)
+
+class Volume(db.Model):
+    id = db.Column(db.String, primary_key=True)
+    time_stamp = db.Column(db.String(15), nullable=False)
+    volume_limit = db.Column(db.Integer, nullable=False)
+    volume_data = db.Column(db.Integer, nullable=False)
