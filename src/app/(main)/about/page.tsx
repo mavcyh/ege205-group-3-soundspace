@@ -1,7 +1,12 @@
-"use client"
-import { Container, Title, Text, Image, Center, Flex, Group } from '@mantine/core'
-import aboutUsGuitar from '../../assets/aboutus-guitar.jpg'
-import NextImage from 'next/image'
+import { Metadata } from 'next';
+import { Container, Title, Text, Image, Center, Flex, Group } from '@mantine/core';
+import aboutUsGuitar from '@/assets/aboutus-guitar.jpg';
+import NextImage from 'next/image';
+
+export const metadata: Metadata = {
+    title: "SoundSpace | About",
+};
+
 export default function About() {
     return(
         <>
@@ -36,7 +41,7 @@ export default function About() {
                             elevate your music to new heights.
                         </Text> 
                     </Group>
-            </Container>1
+            </Container>
         </>
     );
 }

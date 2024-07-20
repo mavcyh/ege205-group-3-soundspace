@@ -1,7 +1,6 @@
-import React from 'react'
 import { Button, Group, Flex, Box, Image } from '@mantine/core'
-import logo from "../assets/soundspace-logo.jpg"
-import notifBell from '../assets/notifBell.png'
+import logo from "@/assets/soundspace-logo.jpg"
+import notifBell from '@/assets/notifBell.png'
 import NextImage from 'next/image'
 
 export const Navbar = () => {
