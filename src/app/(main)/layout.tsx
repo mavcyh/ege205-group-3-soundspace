@@ -1,5 +1,5 @@
-import { Navbar } from "@/app/_components/Navbar/Navbar";
-import { Footer } from "@/app/_components/Footer/Footer";
+import { Navbar } from './_components/layout/Navbar/Navbar';
+import { Footer } from "./_components/layout/Footer/Footer";
 
 export default function RootLayout({
   children,
