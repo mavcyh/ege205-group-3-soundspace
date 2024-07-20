@@ -1,7 +1,8 @@
 "use client"
-import { Anchor, Group, ActionIcon, rem, Text } from '@mantine/core'
+import { Anchor, Group, ActionIcon, rem, Text, Box } from '@mantine/core'
 import { IconBrandTwitter, IconBrandYoutube, IconBrandInstagram} from '@tabler/icons-react'
 import classes from './Footer.module.css'
+import Link from 'next/link'
 
 const links = [
   { link: '/', label: 'Contact' },
@@ -14,6 +15,7 @@ const links = [
 export function Footer() {
   const items = links.map((link) => (
     <Anchor
+      component={Link}
       c="dimmed"
       key={link.label}
       href={link.link}
@@ -26,8 +28,8 @@ export function Footer() {
   ));
 
   return (
-    <div className={classes.footer}>
-      <div className={classes.inner}>
+    <footer className={classes.footer}>
+      <Box className={classes.inner}>
         <Text size='sm' style={{color: 'grey'}}>
             © {new Date().getFullYear()} SoundSpace. All rights reserved.
         </Text>
@@ -44,7 +46,7 @@ export function Footer() {
             <IconBrandInstagram style={{ width: rem(18), height: rem(18) }} stroke={1.5} />
           </ActionIcon>
         </Group>
-      </div>
-    </div>
+      </Box>
+    </footer>
   );
 }

@@ -8,11 +8,9 @@
     padding-right: var(--mantine-spacing-md);
     padding-bottom: var(--mantine-spacing-md);
   }
-  
-  .like {
-    color: var(--mantine-color-orange-5);
-    width: rem(20px);
-    height: rem(20px);
+
+  .description {
+    height: 200px;
   }
   
   .label {
