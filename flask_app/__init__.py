@@ -1,8 +1,9 @@
 from flask import Flask
 from flask_sqlalchemy import SQLAlchemy
+from sqlalchemy import Numeric, REAL
 from flask_socketio import SocketIO
 from flask_cors import CORS
-from flask_restx import Api, Namespace
+from flask_restx import Api, Namespace, fields
 
 app = Flask(__name__)
 socketio = SocketIO(app, async_mode="eventlet")
