@@ -53,19 +53,13 @@ def get_booking_availability_and_instruments():
     future_bookings = Booking.query.filter(Booking.start_datetime > now).all()
     result = []
     for booking in future_bookings:
-        # Assuming locker_id is accessible directly from the booking object
-        # Adjust this line if locker_id needs to be fetched differently
-        locker_no = booking.locker_id  # This line might need adjustment based on your actual data model
-        
+        locker_ids = [instrument.locker_id for instrument in booking.instruments]
         booking_dict = {
-            'id': booking.id,
             'start_time': booking.start_datetime,
             'end_time': booking.end_datetime,
             'email': booking.email,
-            'locker_no': locker_no  # Updated to reflect the correct field name
+            'locker_ids': locker_ids
         }
         result.append(booking_dict)
-    
     return result
-
 # return each locker(name, price)
