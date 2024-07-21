@@ -22,15 +22,14 @@ def is_time_slot_available(start_datetime, end_datetime):
     return True
 
 def create_booking(start_datetime, end_datetime, locker_ids, email):
-    
     new_booking = Booking(start_datetime=start_datetime, end_datetime=end_datetime, email=email)
     for locker_id in locker_ids:
         locker = Instrument.query.get(locker_id)
         if locker:
             new_booking.instruments.append(locker)
-            
-        db.session.add(new_booking)
-        db.session.commit()
+    print(new_booking)
+    db.session.add(new_booking)
+    db.session.commit()
 
 def write_volume_level_data(time_stamp, volume_data, volume_limit):
     volume_data_json = json.dumps(volume_data).strip('[]')

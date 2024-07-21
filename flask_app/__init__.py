@@ -11,11 +11,13 @@ app.config['SQLALCHEMY_DATABASE_URI'] = "sqlite:///db.sqlite3"
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 db = SQLAlchemy(app)
 CORS(app)
-ns = Namespace("api")
+nsApi = Namespace("api")
+nsAdmin = Namespace("admin")
 api = Api(app)
-api.add_namespace(ns)
+api.add_namespace(nsApi)
+api.add_namespace(nsAdmin)
 
 from flask_app.core import core, mailer
 from flask_app.socketio_events import bbbw, nextjs
 from flask_app.database import models, crud
-from flask_app.api import routes, models
+from flask_app.api import models, routes

@@ -1,30 +1,29 @@
 from flask_app import db, Numeric, REAL
 
 
-#class User(db.Model):
-    # id = db.Column(db.Integer, primary_key=True)
-    # username = db.Column(db.String(255), unique=True, nullable=False)
-    # password = db.Column(db.String(255), nullable=False)
-    # email = db.Column(db.String(255))
+# class User(db.Model):
+#     id = db.Column(db.Integer, primary_key=True)
+#     username = db.Column(db.String(255), unique=True, nullable=False)
+#     password = db.Column(db.String(255), nullable=False)
+#     email = db.Column(db.String(255))
     
-    # def __repr__(self):
-    #     return f"User('{self.username}', '{self.email}')"
+#     def __repr__(self):
+#         return f"User('{self.username}', '{self.email}')"
     
 
 booking_instrument = db.Table('booking_instrument',
     db.Column('booking_start_datetime', db.String, db.ForeignKey('booking.start_datetime'), primary_key=True),
     db.Column('locker_id', db.Integer, db.ForeignKey('instrument.locker_id'), primary_key=True)
 )
-# TODO user_id as foreign key, method to store date and time of booking
+
 class Booking(db.Model):
     start_datetime = db.Column(db.String, primary_key=True, nullable=False)
     end_datetime = db.Column(db.String, nullable=False)
-    device_dropped = db.Column(db.Boolean, default=False)
-    email = db.Column(db.String, nullable=False)
-
-    instruments = db.relationship('Instrument', secondary=booking_instrument,
+    locker_numbers = db.relationship('Instrument', secondary=booking_instrument,
         backref=db.backref('bookings'))
-        
+    email = db.Column(db.String, nullable=False)  
+    device_dropped = db.Column(db.Boolean, default=False)     
+
 # TODO method to dynamically change "wear" of instruments e.g. 60% after 100 hours of active use + 3 months passive deterioration
 class Instrument(db.Model):
     locker_id = db.Column(db.Integer, primary_key=True, nullable=False)
