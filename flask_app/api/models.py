@@ -13,6 +13,15 @@ create_booking_model = nsApi.model("Create Booking", {
     "email": fields.String
 })
 
+reset_locker_wear_model = nsAdmin.model("Reset Locker Wear", {
+    "locker_id": fields.Integer,
+})
+
+change_master_password_model = nsAdmin.model("Change Master Password", {
+    "current_master_password": fields.String,
+    "new_master_password": fields.String
+})
+
 # model for create booking (start_time, end_time, email, locker no.)
 
 # ns.payload()

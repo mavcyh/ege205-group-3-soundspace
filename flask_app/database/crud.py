@@ -39,6 +39,8 @@ def write_volume_level_data(time_stamp, volume_data, volume_limit):
     db.session.commit()
 
 def get_volume_data():
+    # TODO CHECK IF THERE IS AN ACTIVE SESSION, IF SO, FIND THE START TIME AND END TIME
+    # THEN, CHECK IF THE VOLUME DATA'S TIMESTAMP IS WITHIN THE START TIME AND END TIME.
     volumes = Volume.query.all()
     return volumes
 

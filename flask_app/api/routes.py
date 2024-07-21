@@ -3,7 +3,7 @@ from flask_restx import Resource
 from flask_app import nsApi, nsAdmin
 from flask_app import socketio
 from flask_app.database.crud import create_booking, is_time_slot_available, get_volume_data
-from .models import volume_model, create_booking_model
+from .models import volume_model, create_booking_model, reset_locker_wear_model, change_master_password_model
 
 
 #region BOOKING PAGE
@@ -52,13 +52,28 @@ class admin_current_session_volume_data(Resource):
 @nsAdmin.route("/instrument-data")
 class admin_instrument_data(Resource):
     def get(self):
-        # return
-        return NotImplemented
+        return None
 
 @nsAdmin.route("/bookings")
 class admin_bookings(Resource):
     def get(self):
-        return NotImplemented
+        return None
+
+@nsAdmin.route("/reset-locker-wear")
+class admin_reset_locker_wear(Resource):
+    @nsAdmin.expect(reset_locker_wear_model)
+    def post(self):
+        locker_id = nsApi.payload["locker_id"]
+        print(locker_id)
+
+@nsAdmin.route("change-master-password")
+class admin_change_master_password(Resource):
+    @nsAdmin.expect(change_master_password_model)
+    def post(self):
+        current_master_password = nsApi.payload["current_master_password"]
+        new_master_password = nsApi.payload["new_master_password"]
+        print(f"Current master password: {current_master_password}\nNew master password: {new_master_password}")
+
 
 #endregion ADMIN PAGE
 
