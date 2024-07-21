@@ -1,6 +1,6 @@
 from flask import request
 from flask_app import socketio
-from flask_app.database.crud import write_volume_level_data, print_volume_data
+from flask_app.database.crud import write_volume_level_data
 
 #region SOCKETIO EVENTS
 

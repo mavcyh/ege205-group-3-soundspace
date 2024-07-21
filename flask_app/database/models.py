@@ -13,7 +13,7 @@ from flask_app import db, Numeric, REAL
 
 booking_instrument = db.Table('booking_instrument',
     db.Column('booking_start_datetime', db.String, db.ForeignKey('booking.start_datetime'), primary_key=True),
-    db.Column('instrument_id', db.Integer, db.ForeignKey('instrument.locker_id'), primary_key=True)
+    db.Column('locker_id', db.Integer, db.ForeignKey('instrument.locker_id'), primary_key=True)
 )
 # TODO user_id as foreign key, method to store date and time of booking
 class Booking(db.Model):

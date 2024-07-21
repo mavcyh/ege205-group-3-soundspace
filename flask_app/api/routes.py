@@ -9,27 +9,25 @@ from .models import volume_model
 @ns.route("/bookings")
 class create_bookings(Resource):
     def post(self):
-        booking_date = request.json.get("bookingDate")
-        start_time = request.json.get("startTime")
-        end_time = request.json.get("endTime")
-        instrument_ids = request.json.get("instrumentIds", [])
-        is_time_slot_available(booking_date, start_time, end_time)
+        start_datetime = request.json.get("startTime")
+        end_datetime = request.json.get("endTime")
+        locker_ids = request.json.get("lockerIds", [])
+        email = request.json.get("email")
+        is_time_slot_available(start_datetime, end_datetime)
 
-        if not is_time_slot_available(booking_date, start_time, end_time):
+        if not is_time_slot_available(start_datetime, end_datetime):
             return jsonify({"message": "Booking slot is not available!"}), 409
         
-        if not booking_date or not start_time or not end_time:
+        if not start_datetime or not end_datetime:
             return jsonify({"message": "Booking date, start time, and end time are required."}), 400
         
-        create_booking(booking_date, start_time, end_time, instrument_ids)
+        create_booking(start_datetime, end_datetime, locker_ids, email)
 
 @ns.route("/volume")
 class show_volume(Resource):
     @ns.marshal_list_with(volume_model)
     def get(self):
         return get_volume_data()
-
-
 
 #endregion BOOKING
 
