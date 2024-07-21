@@ -1,6 +1,37 @@
 from flask_restx import Resource
 from flask_app import ns
 from flask_app import socketio
+from flask_app.database.crud import create_booking, is_time_slot_available, get_volume_data
+from flask import request, jsonify
+from .models import volume_model
+#region BOOKING
+
+@ns.route("/bookings")
+class create_bookings(Resource):
+    def post(self):
+        booking_date = request.json.get("bookingDate")
+        start_time = request.json.get("startTime")
+        end_time = request.json.get("endTime")
+        instrument_ids = request.json.get("instrumentIds", [])
+        is_time_slot_available(booking_date, start_time, end_time)
+
+        if not is_time_slot_available(booking_date, start_time, end_time):
+            return jsonify({"message": "Booking slot is not available!"}), 409
+        
+        if not booking_date or not start_time or not end_time:
+            return jsonify({"message": "Booking date, start time, and end time are required."}), 400
+        
+        create_booking(booking_date, start_time, end_time, instrument_ids)
+
+@ns.route("/volume")
+class show_volume(Resource):
+    @ns.marshal_list_with(volume_model)
+    def get(self):
+        return get_volume_data()
+
+
+
+#endregion BOOKING
 
 #region TEST
     
@@ -30,5 +61,6 @@ class change_door_password(Resource):
             "temporary_password": "123412"
         }
         socketio.emit("serverToRoomDoor_updatePasswords", TxData)
+
 
 #endregion TEST
