@@ -1,9 +1,10 @@
 "use client"
-import { useState } from 'react'
-import { DatePicker } from '@mantine/dates'
+import { useState } from 'react';
+import { DatePicker } from '@mantine/dates';
 import { useForm } from '@mantine/form';
 import { Chip, Container, Paper, Center, Title, Flex, Stack, Checkbox, Text, Group, List, Button, TextInput, Divider } from '@mantine/core'
 import classes from "./page.module.css";
+
 
 interface MockData {
     id: string;
