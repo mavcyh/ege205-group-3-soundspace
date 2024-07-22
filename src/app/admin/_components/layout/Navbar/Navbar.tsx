@@ -11,11 +11,10 @@ export const Navbar = () => {
             <Flex justify='space-between'>
                 <Image component={NextImage} src={logo} alt='logo' className={classes.logo}/>
                 <Group className={classes.buttonsgroup}>
-                    <Button className={classes.buttons} component='a' href='/'>Home</Button>
-                    <Button className={classes.buttons} component='a' href='/about'>About</Button>
-                    <Button className={classes.buttons} component='a' href='/bookings'>Bookings</Button>
+                    <Button className={classes.buttons} component='a' href='/admin'>Dashboard</Button>
+                    <Button className={classes.buttons} component='a' href='/admin/password'>Password</Button>
+                    <Button className={classes.buttons} component='a' href='/admin/booking'>Booking</Button>
                 </Group>
-                <Button className={classes.buttons} component='a' href='/signin'>Sign In</Button>
             </Flex>
         </Box>
     </>

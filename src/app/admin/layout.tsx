@@ -1,3 +1,5 @@
+import { Navbar } from "./_components/layout/Navbar/Navbar";
+
 export default function RootLayout({
   children,
 }: Readonly<{
@@ -5,6 +7,7 @@ export default function RootLayout({
 }>) {
   return (
     <>
+      <Navbar/>
       {children}
     </>
   );
