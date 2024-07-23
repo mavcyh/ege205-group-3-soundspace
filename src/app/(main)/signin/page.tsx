@@ -9,7 +9,6 @@ export default function signIn() {
         username: '',
         email: '',
         password: '',
-        termsOfService: false,
     },
 
     validate: {

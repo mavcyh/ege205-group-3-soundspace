@@ -12,8 +12,8 @@ export const Navbar = () => {
                 <Image component={NextImage} src={logo} alt='logo' className={classes.logo}/>
                 <Group className={classes.buttonsgroup}>
                     <Button className={classes.buttons} component='a' href='/admin'>Dashboard</Button>
-                    <Button className={classes.buttons} component='a' href='/admin/password'>Password</Button>
-                    <Button className={classes.buttons} component='a' href='/admin/booking'>Booking</Button>
+                    <Button className={classes.buttons} component='a' href='/admin/custombooking'>Custom Booking</Button>
+                    <Button className={classes.buttons} component='a' href='/admin/masterpassword'>Master Password</Button>
                 </Group>
             </Flex>
         </Box>
