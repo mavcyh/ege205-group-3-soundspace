@@ -18,7 +18,7 @@ def bbbwSessionInfo_updateVolumeLevel(data):
     if data["volume_level"] >= 10:
         TxData = {}
         socketio.emit("serverToSessionInfo_maximumVolumeExceeded", TxData)
-    write_volume_level_data(str(data["time_stamp"]),[data["volume_level"]], 10)
+    write_volume_level_data(data["time_stamp"],[data["volume_level"]], 10)
 
 #endregion bbbwSessionInfo
 

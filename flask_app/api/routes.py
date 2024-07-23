@@ -2,8 +2,8 @@ from flask import jsonify
 from flask_restx import Resource
 from flask_app import nsApi, nsAdmin
 from flask_app import socketio
-from flask_app.database.crud import create_booking, is_time_slot_available, get_volume_data
-from .models import volume_model, create_booking_model, reset_locker_wear_model, change_master_password_model
+from flask_app.database.crud import create_booking, is_time_slot_available, get_current_session_volume_data, reset_wear_value, get_wear_values
+from .models import volume_model, create_booking_model, reset_locker_wear_model, send_locker_wear_model, change_master_password_model
 
 
 #region BOOKING PAGE
@@ -47,7 +47,7 @@ class api_create_booking(Resource):
 class admin_current_session_volume_data(Resource):
     @nsApi.marshal_list_with(volume_model)
     def get(self):
-        return get_volume_data()
+        return get_current_session_volume_data()
 
 @nsAdmin.route("/instrument-data")
 class admin_instrument_data(Resource):
@@ -59,12 +59,21 @@ class admin_bookings(Resource):
     def get(self):
         return None
 
+@nsAdmin.route("/get-locker-wear")
+class admin_get_locker_wear(Resource):
+    @nsAdmin.marshal_list_with(send_locker_wear_model)
+    def get(self):
+        wear_values = get_wear_values()
+        return {"wear_value": wear_values}
+
 @nsAdmin.route("/reset-locker-wear")
 class admin_reset_locker_wear(Resource):
     @nsAdmin.expect(reset_locker_wear_model)
     def post(self):
         locker_id = nsApi.payload["locker_id"]
+        reset_wear_value(locker_id)
         print(locker_id)
+
 
 @nsAdmin.route("change-master-password")
 class admin_change_master_password(Resource):
