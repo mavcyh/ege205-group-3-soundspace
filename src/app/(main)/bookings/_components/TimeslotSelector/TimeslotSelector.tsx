@@ -33,11 +33,11 @@ export const TimeslotSelector = ({selectedChips, setSelectedChips, selectedDate}
     }
   }
   let bookingChips = [];
-  console.log(`${selectedChips.startChip.date}, ${selectedChips.startChip.hour}`)
     for (let hour = 0; hour < 24; hour++) {
-        const isStartChip = selectedChips.startChip.date == selectedDate && selectedChips.startChip.hour == hour;
-        console.log(`${hour}: ${selectedDate}`)
-        const isEndChip = selectedChips.endChip.date == selectedDate && selectedChips.endChip.hour == hour;
+        const isStartChip = selectedChips.startChip.date == null ? false : 
+        selectedChips.startChip.date.toDateString() == selectedDate?.toDateString() && selectedChips.startChip.hour == hour;
+        const isEndChip = selectedChips.endChip.date == null ? false: 
+        selectedChips.endChip.date.toDateString() == selectedDate?.toDateString() && selectedChips.endChip.hour == hour;
         bookingChips.push(
         <Chip key={hour}
         value={hour.toString()}
