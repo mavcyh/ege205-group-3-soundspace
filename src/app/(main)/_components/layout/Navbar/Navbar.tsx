@@ -18,7 +18,7 @@ export const Navbar = () => {
             >Home</Button>
             <Button variant="transparent" color="orange" size="md" component='a' href='/about' 
             >About</Button>
-            <Button variant="transparent" color="orange" size="md" component='a' href='/bookings' 
+            <Button variant="transparent" color="orange" size="md" component='a' href='/booking' 
             >Bookings</Button>
           </Group>     
 
