@@ -12,24 +12,42 @@ export const TimeslotSelector = ({selectedChips, setSelectedChips, selectedDate}
   selectedDate: Date | null}) => {
 
   function onChipSelected(selectedHour: number) {
+    const selectedChip = {date: selectedDate, hour: selectedHour}
     // Selecting starting chip
     if (selectedChips.startChip.date == null) {
       setSelectedChips({...selectedChips, startChip: {date: selectedDate, hour: selectedHour}});
       // TODO: logic to disable all chips after a future existing booking, if any
     }
+    // Deselect starting chip
+    else if (selectedChips.startChip.date == selectedDate && selectedChips.startChip.hour == selectedHour) {
+      setSelectedChips({...selectedChips, startChip: {date: null, hour: null}});
+    }
     // Selecting ending chip
     else if (selectedChips.endChip.date == null) {
       setSelectedChips({...selectedChips, endChip: {date: selectedDate, hour: selectedHour}})
-      // TODO: logic to update the number of hours selected in the order section
+      // TODO: logic to update the number of hours selected in the order section and visual appearance of chips in between
+    }
+    // Deselect ending chip
+    else if (selectedChips.endChip.date == selectedDate && selectedChips.endChip.hour == selectedHour) {
+      setSelectedChips({...selectedChips, endChip: {date: null, hour: null}})
     }
   }
-
-
   let bookingChips = [];
-    for (let i = 0; i < 24; i++) {
-        bookingChips.push(<Chip key={i} value={i.toString()} size='md' onClick={() => onChipSelected(i)}>
-                            {`${i.toString().padStart(2, '0')}:00`}
-                          </Chip>);
+  console.log(`${selectedChips.startChip.date}, ${selectedChips.startChip.hour}`)
+    for (let hour = 0; hour < 24; hour++) {
+        const isStartChip = selectedChips.startChip.date == selectedDate && selectedChips.startChip.hour == hour;
+        console.log(`${hour}: ${selectedDate}`)
+        const isEndChip = selectedChips.endChip.date == selectedDate && selectedChips.endChip.hour == hour;
+        bookingChips.push(
+        <Chip key={hour}
+        value={hour.toString()}
+        size='md'
+        onClick={() => onChipSelected(hour)}
+        checked={isStartChip || isEndChip}
+        >
+          {`${hour.toString().padStart(2, '0')}:00`}
+        </Chip>
+        );
     }
   return (
     <Paper withBorder shadow="xl" pb={30} pt={30} mt={15}

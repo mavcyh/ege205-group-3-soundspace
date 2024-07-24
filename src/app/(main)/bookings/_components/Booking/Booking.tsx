@@ -4,7 +4,7 @@ import { DatePicker, DatesProvider } from '@mantine/dates';
 import { useForm } from '@mantine/form';
 import { InstrumentSelector } from '@/components/InstrumentSelector/InstrumentSelector';
 import { TimeslotSelector } from '../TimeslotSelector/TimeslotSelector';
-import { Center, Title, Flex, Container, Paper } from '@mantine/core';
+import { Center, Title, Flex, Container, Paper, Space, Text } from '@mantine/core';
 
 interface BookingChip {
   date: Date | null,
@@ -14,8 +14,8 @@ interface BookingChip {
 export const Booking = (props: {existingBookings: {startDatetime: Date, endDatetime: Date}[]}) => {
   // Date picker: to change the date property of a startChip/ endChip, and update the available booking slots
   const [selectedDate, setSelectedDate] = useState<Date | null>(new Date((new Date()).setHours(8, 0, 0, 0)));
-  function onChangeSelectedDate() {
-
+  function onChangeSelectedDate(newSelectedDate: Date | null) {
+    setSelectedDate(newSelectedDate);
   }
   let maxDate = new Date();
   maxDate.setDate(maxDate.getDate() + 14);
@@ -46,9 +46,11 @@ export const Booking = (props: {existingBookings: {startDatetime: Date, endDatet
         </Container>
       </Flex>
     </Center>
-    <p>Selected Date: {JSON.stringify(selectedDate)}</p><br />
-    <p>Start Date, Hour: {JSON.stringify(selectedChips.startChip.date)}, {JSON.stringify(selectedChips.startChip.hour)}</p><br />
-    <p>End Date, Hour: {JSON.stringify(selectedChips.endChip.date)}, {JSON.stringify(selectedChips.endChip.hour)}</p>
+    <div>
+      <Text>Selected Date: {JSON.stringify(selectedDate)}</Text><Space />
+      <Text>Start Date, Hour: {JSON.stringify(selectedChips.startChip.date)}, {JSON.stringify(selectedChips.startChip.hour)}</Text><Space />
+      <Text>End Date, Hour: {JSON.stringify(selectedChips.endChip.date)}, {JSON.stringify(selectedChips.endChip.hour)}</Text>
+    </div>
     </>        
   )
 }
