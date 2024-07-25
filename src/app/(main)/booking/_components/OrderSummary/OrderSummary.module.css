@@ -1,0 +1,36 @@
+.list {
+    position: relative;
+  }
+  
+  .id {
+    list-style-type: none;
+    font-size: large;
+    padding-left: 50px;
+    padding-top: 40px;
+    font-weight: 400;
+  }
+  
+  .price {
+    list-style-type: none;
+    position: absolute;
+    right: 30px;
+  }
+  
+  .book {
+    font-size: 15px;
+    position: absolute;
+    bottom: 52px; 
+    right: 50px;
+    width: 20%;
+    height: 40px;
+  }
+  
+  .email {
+    position: absolute;
+    bottom: 130px;   
+    width: 80%;
+  }
+  
+  .total {
+    padding-left: 50px;
+  }
