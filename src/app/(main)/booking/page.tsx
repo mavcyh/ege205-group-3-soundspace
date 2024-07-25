@@ -1,14 +1,15 @@
-import { Metadata } from "next";
-import { Center, Title } from "@mantine/core";
-import { Booking } from "./_components/Booking/Booking";
-import classes from "./page.module.css"
+import { Metadata } from 'next';
+import { Center, Title } from '@mantine/core';
+import { Booking } from './_components/Booking/Booking';
+import classes from './page.module.css';
+import { Text, Space } from '@mantine/core';
 
 export const metadata: Metadata = {
-  title: "SoundSpace | Booking",
+  title: 'SoundSpace | Booking',
 };
 
 const currentBookings = [
-  {start_datetime: new Date(2024, 6, 25, 16, 0), end_datetime: new Date(2024, 6, 25, 17, 0)},
+  {start_datetime: new Date(2024, 6, 26, 20, 0), end_datetime: new Date(2024, 6, 26, 22, 0)},
 ]
 
 const instrumentData: {locker_id: string, instrument_name: string, price_per_hour: number}[] =

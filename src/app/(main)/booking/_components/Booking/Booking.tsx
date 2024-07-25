@@ -22,7 +22,7 @@ export const Booking = ({currentBookings, instrumentData}:
   const currentDate = new Date(currentDatetime.getFullYear(), currentDatetime.getMonth(), currentDatetime.getDate());
   const [selectedDate, setSelectedDate] = useState<Date | null>(currentDate);
   const maxDate = new Date(selectedDate!);
-  maxDate.setDate(maxDate.getDate() + 14);
+  maxDate.setDate(maxDate.getDate() + 21);
 
   // selectedChips is an object with startChip and endChip: each having the interface BookingChip.
   // Each BookingChip defines the date at which the chip selected was for, and the hour (0-23).
@@ -60,6 +60,12 @@ export const Booking = ({currentBookings, instrumentData}:
         </Container>
       </Flex>
     </Center>
+    <div>
+      <Text>startChip: {JSON.stringify(selectedChips.startChip)}</Text>
+      <Text>endChip: {JSON.stringify(selectedChips.endChip)}</Text>
+      <Text>Selected instruments:</Text>
+      {selectedInstruments.map(selectedInstrument => <Text>{JSON.stringify(selectedInstrument)}</Text>)}
+    </div>
     </>
   )
 }

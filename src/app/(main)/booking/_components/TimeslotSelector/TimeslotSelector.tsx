@@ -1,5 +1,7 @@
 "use client"
 import { Paper, Center, Title, Flex, Stack, Chip } from '@mantine/core';
+import { IconCalendarDot, IconCircleDotted, IconCircleLetterE, IconCircleLetterS } from '@tabler/icons-react';
+import classes from './TimeslotSelector.module.css';
 
 export const TimeslotSelector = ({currentBookings, selectedChips, setSelectedChips, selectedDate}:
   { currentBookings: {start_datetime: Date, end_datetime: Date}[],
@@ -12,22 +14,25 @@ export const TimeslotSelector = ({currentBookings, selectedChips, setSelectedChi
 
   function onChipSelected(chipSelected: Date) {
     const chipSelectedTime = chipSelected.getTime();
-    // Selecting starting chip
-    if (startChipTime == null) {
+    // Selecting starting chip/ changing starting chip to before current starting chip
+    if (startChipTime == null || ( endChipTime == null && chipSelectedTime < startChipTime)) {
       setSelectedChips({...selectedChips, startChip: chipSelected});
     }
     // Deselect starting chip
-    else if (startChipTime == chipSelectedTime) {
+    else if (chipSelectedTime == startChipTime && endChipTime == null) {
       setSelectedChips({...selectedChips, startChip: null});
     }
-    // Selecting ending chip
-    else if (endChipTime == null) {
+    // Selecting ending chip/ changing ending chip to after current ending chip
+    else if (endChipTime == null || chipSelectedTime > endChipTime || (chipSelectedTime < endChipTime && chipSelectedTime > startChipTime)) {
       setSelectedChips({...selectedChips, endChip: chipSelected})
-      // TODO: logic to update the number of hours selected in the order section and visual appearance of chips in between
     }
     // Deselect ending chip
-    else if (endChipTime == chipSelectedTime) {
+    else if (chipSelectedTime == endChipTime || chipSelectedTime == startChipTime) {
       setSelectedChips({...selectedChips, endChip: null})
+    }
+    // Starting and ending chip already selected, but selected chip before starting chip
+    else if (chipSelectedTime < startChipTime) {
+      setSelectedChips({startChip: chipSelected, endChip: null});
     }
   }
 
@@ -56,27 +61,44 @@ export const TimeslotSelector = ({currentBookings, selectedChips, setSelectedChi
         const isSelectedChip = endChipTime == null ? false : startChipTime! < chipTime && chipTime < endChipTime;
 
         // Defines whether the chip is no longer valid to be selected because of the choice of startChip.
-        const isInvalidChip = currentBookings.some((currentBooking) =>
-          startChipTime == null ? false :
-          startChipTime < currentBooking.start_datetime.getTime() &&
-          (chipTime > currentBooking.end_datetime.getTime() || chipTime < startChipTime))
+        let isSelectableInvalidChip = false;
+        const isInvalidChip = currentBookings.some((currentBooking) => {
+          if (startChipTime == null) return false;
+          else if (startChipTime < currentBooking.start_datetime.getTime()) {
+            if (chipTime < startChipTime) { 
+              isSelectableInvalidChip = true;
+              return false;
+            }
+            if (chipTime >= currentBooking.end_datetime.getTime()) return true;
+          }
+        })
 
         // Defines whether the chip is within a current booking or the time has already passed.
-        
+        let isBookedChip = false;
         const isUnavailableChip = chipDate < currentDateHours ||
-        currentBookings.some(
-          (currentBooking) => currentBooking.start_datetime <= chipDate! && chipDate! < currentBooking.end_datetime
-        )
+        currentBookings.some((currentBooking) => {
+          if (currentBooking.start_datetime <= chipDate && chipDate < currentBooking.end_datetime) {
+            isBookedChip = true;
+            return true;
+          }
+          return false;
+        })
 
+        const iconWidthHeightPx = 16;
         bookingChips.push(
         <Chip
         key={hour}
         size='md'
         radius='md'
-        onClick={() => onChipSelected(chipDate)}
-        checked={isStartChip || isEndChip || isSelectedChip}
-        disabled={isUnavailableChip ? true : false}
-        variant={isSelectedChip ? 'light' : isInvalidChip ? 'outline' : 'filled'} 
+        onClick={ () => !isInvalidChip ? onChipSelected(chipDate) : null }
+        checked={ isStartChip || isEndChip || isSelectedChip || isBookedChip }
+        disabled={ isUnavailableChip ? true : false }
+        variant={ isSelectedChip ? 'light' : isInvalidChip || isSelectableInvalidChip ? 'outline' : 'filled' }
+        icon={ isStartChip ? <IconCircleLetterS style={{width: `${iconWidthHeightPx}px`, height: `${iconWidthHeightPx}px`}} /> :
+               isEndChip ? <IconCircleLetterE style={{width: `${iconWidthHeightPx}px`, height: `${iconWidthHeightPx}px`}} /> : 
+               isSelectedChip ? <IconCircleDotted style={{width: `${iconWidthHeightPx}px`, height: `${iconWidthHeightPx}px`}} /> :
+               <IconCalendarDot style={{width: `${iconWidthHeightPx}px`, height: `${iconWidthHeightPx}px`}} />}
+
         >
           {`${hour.toString().padStart(2, '0')}:00`}
         </Chip>
