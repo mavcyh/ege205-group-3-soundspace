@@ -30,7 +30,16 @@ export const TimeslotSelector = ({currentBookings, selectedChips, setSelectedChi
       setSelectedChips({...selectedChips, endChip: null})
     }
   }
+
+  // Sorts current bookings based on start datetime in ascending order
   currentBookings.sort((a, b) => a.start_datetime.getTime() - b.start_datetime.getTime())
+
+  // Current date, with only up to hour information (for use to check if the timeslot is before the current hour)
+  let currentDateHours = new Date();
+      currentDateHours.setMinutes(0);
+      currentDateHours.setSeconds(0);
+      currentDateHours.setMilliseconds(0);
+
   let bookingChips = [];
     for (let hour = 0; hour < 24; hour++) {
         let chipDate = new Date(selectedDate!);
@@ -48,12 +57,17 @@ export const TimeslotSelector = ({currentBookings, selectedChips, setSelectedChi
 
         // Defines whether the chip is no longer valid to be selected because of the choice of startChip.
         const isInvalidChip = currentBookings.some((currentBooking) =>
-          startChipTime == null ? false : startChipTime < currentBooking.start_datetime.getTime() && chipTime > currentBooking.end_datetime.getTime())
+          startChipTime == null ? false :
+          startChipTime < currentBooking.start_datetime.getTime() &&
+          (chipTime > currentBooking.end_datetime.getTime() || chipTime < startChipTime))
 
-        // Defines whether the chip is within a current booking, meaning that it is disabled.
-        const isBookedChip = currentBookings.some(
-          (currentBooking) => currentBooking.start_datetime <= chipDate! && chipDate! <= currentBooking.end_datetime
+        // Defines whether the chip is within a current booking or the time has already passed.
+        
+        const isUnavailableChip = chipDate < currentDateHours ||
+        currentBookings.some(
+          (currentBooking) => currentBooking.start_datetime <= chipDate! && chipDate! < currentBooking.end_datetime
         )
+
         bookingChips.push(
         <Chip
         key={hour}
@@ -61,7 +75,7 @@ export const TimeslotSelector = ({currentBookings, selectedChips, setSelectedChi
         radius='md'
         onClick={() => onChipSelected(chipDate)}
         checked={isStartChip || isEndChip || isSelectedChip}
-        disabled={isBookedChip ? true : false}
+        disabled={isUnavailableChip ? true : false}
         variant={isSelectedChip ? 'light' : isInvalidChip ? 'outline' : 'filled'} 
         >
           {`${hour.toString().padStart(2, '0')}:00`}

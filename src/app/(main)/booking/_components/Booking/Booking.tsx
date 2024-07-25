@@ -60,12 +60,6 @@ export const Booking = ({currentBookings, instrumentData}:
         </Container>
       </Flex>
     </Center>
-    <div>
-      <Text>Selected Date: {JSON.stringify(selectedDate)}</Text><Space />
-      <Text>Start Chip Date: {JSON.stringify(selectedChips.startChip)}</Text><Space />
-      <Text>End Chip Date: {JSON.stringify(selectedChips.endChip)}</Text>
-      <Text>Selected Instruments Locker ID: {JSON.stringify(selectedInstruments)}</Text>
-    </div>
     </>
   )
 }

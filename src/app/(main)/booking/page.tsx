@@ -8,7 +8,7 @@ export const metadata: Metadata = {
 };
 
 const currentBookings = [
-  {start_datetime: new Date(2024, 6, 25, 10, 0), end_datetime: new Date(2024, 6, 25, 12, 0)},
+  {start_datetime: new Date(2024, 6, 25, 16, 0), end_datetime: new Date(2024, 6, 25, 17, 0)},
 ]
 
 const instrumentData: {locker_id: string, instrument_name: string, price_per_hour: number}[] =
