@@ -12,10 +12,12 @@ export const TimeslotSelector = ({currentBookings, selectedChips, setSelectedChi
   const startChipTime = selectedChips.startChip == null ? null : selectedChips.startChip.getTime();
   const endChipTime = selectedChips.endChip == null ? null :selectedChips.endChip.getTime();
 
-  function onChipSelected(chipSelected: Date) {
+  function onChipSelected(chipSelected: Date, isInvalidChip: Boolean) {
     const chipSelectedTime = chipSelected.getTime();
+    if (isInvalidChip) setSelectedChips({startChip: chipSelected, endChip: null})
+
     // Selecting starting chip/ changing starting chip to before current starting chip
-    if (startChipTime == null || ( endChipTime == null && chipSelectedTime < startChipTime)) {
+    else if (startChipTime == null || ( endChipTime == null && chipSelectedTime < startChipTime)) {
       setSelectedChips({...selectedChips, startChip: chipSelected});
     }
     // Deselect starting chip
@@ -61,15 +63,15 @@ export const TimeslotSelector = ({currentBookings, selectedChips, setSelectedChi
         const isSelectedChip = endChipTime == null ? false : startChipTime! < chipTime && chipTime < endChipTime;
 
         // Defines whether the chip is no longer valid to be selected because of the choice of startChip.
-        let isSelectableInvalidChip = false;
         const isInvalidChip = currentBookings.some((currentBooking) => {
           if (startChipTime == null) return false;
-          else if (startChipTime < currentBooking.start_datetime.getTime()) {
-            if (chipTime < startChipTime) { 
-              isSelectableInvalidChip = true;
-              return false;
-            }
-            if (chipTime >= currentBooking.end_datetime.getTime()) return true;
+          // startChip before a current booking
+          if (startChipTime < currentBooking.start_datetime.getTime()) {
+            if (chipTime < startChipTime || chipTime >= currentBooking.end_datetime.getTime()) return true;
+          }
+          // startChip after a current booking
+          if (startChipTime > currentBooking.end_datetime.getTime()) {
+            if (chipTime < startChipTime) return true;
           }
         })
 
@@ -90,26 +92,26 @@ export const TimeslotSelector = ({currentBookings, selectedChips, setSelectedChi
         key={hour}
         size='md'
         radius='md'
-        onClick={ () => !isInvalidChip ? onChipSelected(chipDate) : null }
+        onClick={ () => onChipSelected(chipDate, isInvalidChip)}
         checked={ isStartChip || isEndChip || isSelectedChip || isBookedChip }
         disabled={ isUnavailableChip ? true : false }
-        variant={ isSelectedChip ? 'light' : isInvalidChip || isSelectableInvalidChip ? 'outline' : 'filled' }
+        variant={ isSelectedChip ? 'light' : isInvalidChip ? 'outline' : 'filled' }
         icon={ isStartChip ? <IconCircleLetterS style={{width: `${iconWidthHeightPx}px`, height: `${iconWidthHeightPx}px`}} /> :
                isEndChip ? <IconCircleLetterE style={{width: `${iconWidthHeightPx}px`, height: `${iconWidthHeightPx}px`}} /> : 
                isSelectedChip ? <IconCircleDotted style={{width: `${iconWidthHeightPx}px`, height: `${iconWidthHeightPx}px`}} /> :
-               <IconCalendarDot style={{width: `${iconWidthHeightPx}px`, height: `${iconWidthHeightPx}px`}} />}
-
+               <IconCalendarDot style={{width: '14px', height: '14px'}} />}
         >
           {`${hour.toString().padStart(2, '0')}:00`}
         </Chip>
         );
     }
+
   return (
     <Paper withBorder shadow="xl" pb={30} pt={30} mt={15}
     style={{ width: '300px', height: '710px', borderColor: 'orange' }}
     radius="md">
     <Center>
-        <Title size='h4' mt={10}>Time Slots</Title>
+        <Title size='h4' mt={8}>Time Slots</Title>
     </Center>
     <Center>
         <Flex>
