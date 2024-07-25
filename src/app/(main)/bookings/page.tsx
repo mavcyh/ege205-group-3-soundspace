@@ -2,10 +2,9 @@ import { Metadata } from 'next';
 import { Center, Title } from '@mantine/core';
 import { Booking } from './_components/Booking/Booking';
 import classes from './page.module.css';
-import { Text, Space } from '@mantine/core';
 
 export const metadata: Metadata = {
-  title: 'SoundSpace | Booking',
+  title: 'SoundSpace | Bookings',
 };
 
 const currentBookings = [
