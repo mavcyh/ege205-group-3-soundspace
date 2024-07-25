@@ -1,5 +1,6 @@
 import datetime
 from datetime import timedelta
+import sched
 import threading
 import time
 import Adafruit_BBIO.GPIO as GPIO
@@ -13,7 +14,7 @@ from board import SCL, SDA
 from PIL import Image, ImageDraw, ImageFont
 import socketio
 
-SERVER_IP_ADDRESS = "192.168.X.X"
+SERVER_IP_ADDRESS = "192.168.1.20"
 
 # Turn off USR LEDs
 GPIO.setup("USR0", GPIO.OUT)
@@ -25,8 +26,40 @@ GPIO.output("USR1", GPIO.LOW)
 GPIO.output("USR2", GPIO.LOW)
 GPIO.output("USR3", GPIO.LOW)
 
-# S1: Buzz initialisation (User feedback and door alarm)
-BUZZ_PIN = "P9_14"
+scheduler = sched.scheduler(time.time, time.sleep)
+
+# 3x4 matrix keypad initalisation
+ROWS = ["P8_7", "P8_8", "P8_9", "P8_10"]
+COLS = ["P8_11", "P8_12", "P8_13"]
+KEYS = [
+    ['1', '2', '3'],
+    ['4', '5', '6'],
+    ['7', '8', '9'],
+    ['*', '0', '#']
+]
+for row in ROWS:
+    GPIO.setup(row, GPIO.OUT)
+    GPIO.output(row, GPIO.HIGH)
+for col in COLS:
+    GPIO.setup(col, GPIO.IN, pull_up_down=GPIO.PUD_UP)
+
+def check_key_press():
+    for row_idx, row in enumerate(ROWS):
+        GPIO.output(row, GPIO.LOW)
+        for col_idx, col in enumerate(COLS):
+            if GPIO.input(col) == GPIO.LOW:
+                key_input = KEYS[row_idx][col_idx]
+                keypad_input(key_input)
+                while GPIO.input(col) == GPIO.LOW:
+                    time.sleep(0.1)
+                GPIO.output(row, GPIO.HIGH)
+                scheduler.enter(0.05, 1, check_key_press)
+                return
+        GPIO.output(row, GPIO.HIGH)
+        scheduler.enter(0.05, 1, check_key_press)
+
+# Buzz initialisation (User feedback and door alarm)
+BUZZ_PIN = "P9_16"
 BUZZ_VOLUME = 1
 
 def buzz_control(repeat=0, active_time=0, period=0):
@@ -49,11 +82,11 @@ def alarm_timer():
         alarm_timer_threading = threading.Timer(0.5, alarm_timer)
         alarm_timer_threading.start()
 
-# S2: OLED initialisation (Screen)
-Pin_DC = digitalio.DigitalInOut(board.P9_16)
+# OLED initialisation (Screen)
+Pin_DC = digitalio.DigitalInOut(board.P9_14)
 Pin_DC.direction = digitalio.Direction.OUTPUT
 Pin_DC.value = False
-Pin_RESET = digitalio.DigitalInOut(board.P9_23)
+Pin_RESET = digitalio.DigitalInOut(board.P9_13)
 Pin_RESET.direction = digitalio.Direction.OUTPUT
 Pin_RESET.value = True
 OledI2C = busio.I2C(SCL, SDA)
@@ -89,53 +122,8 @@ def update_OLED(door_locking_timer_seconds=None, alarm_active=False):
     Display.image(ImageObj)
     Display.show()
 
-# S3: Analog Key initialisation
-AKEY_PIN = "P9_40"
-ADC.setup()
-
-key_pressed = [False, False, False, False, False, False]
-
-def check_key_press():
-    analog_key_dvalue = ADC.read(AKEY_PIN)
-    if analog_key_dvalue > 0.16 and analog_key_dvalue < 0.18: # T6
-        if not True in key_pressed:
-            key_pressed[0] = True
-            keypad_input("1")
-    else:
-        key_pressed[0] = False
-    if analog_key_dvalue > 0.33 and analog_key_dvalue < 0.35: # T5
-        if not True in key_pressed:
-            key_pressed[1] = True
-            keypad_input("2")
-    else:
-        key_pressed[1] = False
-    if analog_key_dvalue > 0.50 and analog_key_dvalue < 0.52: # T4
-        if not True in key_pressed:
-            key_pressed[2] = True
-            keypad_input("3")
-    else:
-        key_pressed[2] = False
-    if analog_key_dvalue > 0.67 and analog_key_dvalue < 0.69: # T3
-        if not True in key_pressed:
-            key_pressed[3] = True
-            keypad_input("4")
-    else:
-        key_pressed[3] = False
-    if analog_key_dvalue > 0.84 and analog_key_dvalue < 0.86: # T2
-        if not True in key_pressed:
-            key_pressed[4] = True
-            keypad_input("C")
-    else:
-        key_pressed[4] = False
-    if analog_key_dvalue > 0.90 and analog_key_dvalue < 1.10: # T1
-        if not True in key_pressed:
-            key_pressed[5] = True
-            keypad_input("E")
-    else:
-        key_pressed[5] = False
-
-# S4: Reed initialisation (Door opened/ closed detection)
-REED_PIN = "P8_10"
+# Reed initialisation (Door opened/ closed detection)
+REED_PIN = "P8_14"
 GPIO.setup(REED_PIN, GPIO.IN)
 
 def check_door_closed():
@@ -153,8 +141,8 @@ def check_door_closed():
         update_OLED()
 
 database = {
-    "master_password": None,
-    "temporary_password": None,
+    "master_password": "123456",
+    "temporary_password": "098765",
     "door_closed": None,
     "door_locked": False,
     "door_broken_into": False
@@ -197,14 +185,16 @@ def keypad_input(key_input):
     if not database["door_locked"]:
         return
     # Number input
-    if key_input in ["1", "2", "3", "4"] and len(password_input) < 6:
+    if key_input != "*" and key_input != "#":
+        if len(password_input) >= 6:
+            return
         if not database["door_closed"] and not database["door_broken_into"]:
             return
         password_input += key_input
         update_OLED(alarm_active=database["door_broken_into"])
     
     # Clear key
-    elif key_input == "C":
+    elif key_input == "*":
         password_input = ""
         update_OLED(alarm_active=database["door_broken_into"])
     
@@ -244,8 +234,10 @@ def serverToRoomDoor_updatePasswords(data):
 # MAIN LOGIC
 
 door_locking_timer()
+check_key_press()
+scheduler_thread = threading.Thread(target=scheduler.run)
+scheduler_thread.start()
 
 while True:
     check_door_closed()
-    check_key_press()
     time.sleep(0.1)

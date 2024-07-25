@@ -11,7 +11,7 @@ export const Navbar = () => {
         <Flex style={{height:'60px', padding:'2px'}}
             justify={'space-between'}
             wrap='wrap'>
-          <Image component={NextImage} src={logo} alt='logo' h={50} fit='contain' w="auto" style={{paddingTop: '8px', paddingLeft:'20px'}}/>
+          <Image priority={true} component={NextImage} src={logo} alt='logo' h={50} fit='contain' w="auto" style={{paddingTop: '8px', paddingLeft:'20px'}}/>
           <Group style={{paddingRight: '50px'}}>
             <Button 
             variant="transparent" color="orange" size="md" component='a' href='/' 
