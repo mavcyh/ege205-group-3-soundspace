@@ -60,12 +60,6 @@ export const Booking = ({currentBookings, instrumentData}:
         </Container>
       </Flex>
     </Center>
-    <div>
-      <Text>startChip: {JSON.stringify(selectedChips.startChip)}</Text>
-      <Text>endChip: {JSON.stringify(selectedChips.endChip)}</Text>
-      <Text>Selected instruments:</Text>
-      {selectedInstruments.map(selectedInstrument => <Text>{JSON.stringify(selectedInstrument)}</Text>)}
-    </div>
     </>
   )
 }
