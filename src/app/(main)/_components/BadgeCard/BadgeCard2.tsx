@@ -2,23 +2,23 @@
 import { Card, Image, Text, Group, Badge, Button } from '@mantine/core';
 import classes from './BadgeCard.module.css';
 import NextImage from 'next/image'
-import musicInstruments from '@/assets/home-musicInstruments.jpg'
+import musicInstruments from '@/assets/home-locker.jpg'
 
-const data = {
+const mockdata = {
   image:
     musicInstruments,
-  title: 'Comfortable Environment',
-  country: 'Well maintained',
+  title: 'Automated Lockers',
+  tag: '24/7 Access',
   description:
-    "Enjoy a clean and welcoming atmosphere, with a wide selection of musical instruments. Enhanced soundproofing ensures a quiet, private space free from external noise, while thoughtfully designed interiors with inspiring decor fuel your creativity. Additionally, you'll have access to amenities like a lounge area, refreshments, and high-speed internet, making your time in the studio as pleasant and productive as possible.",
+    "With our user-friendly platform, you can rent the instrument you need directly from a secure, automated locker. Whether you're a seasoned musician or just starting out, our system ensures you have access to top-notch equipment whenever you need it. Book online, receive a unique access code, and retrieve your rented instrument from our state-of-the-art lockers, available 24/7.",
   badges: [
-    { emoji: '👍', label: 'Comfort' },
-    { emoji: '🙆‍♀️', label: 'Clean' },
+    { emoji: '👍', label: 'User friendly' },
+    { emoji: '⏲️', label: '24/7 Availability' },
   ],
 };
 
 export function BadgeCard2() {
-  const { image, title, description, country, badges } = data;
+  const { image, title, description, tag, badges } = mockdata;
   const features = badges.map((badge) => (
     <Badge variant="light" key={badge.label} leftSection={badge.emoji}>
       {badge.label}
@@ -28,7 +28,7 @@ export function BadgeCard2() {
   return (
     <Card withBorder radius="md" p="md" mt={30} className={classes.card} style={{width: '32%'}}>
       <Card.Section>
-        <Image component={NextImage} src={image} alt={title} height={180} />
+        <Image component={NextImage} src={image} alt={title} className={classes.image}/>
       </Card.Section>
 
       <Card.Section className={classes.section} mt="md">
@@ -37,17 +37,17 @@ export function BadgeCard2() {
             {title}
           </Text>
           <Badge size="sm" variant="light">
-            {country}
+            {tag}
           </Badge>
         </Group>
-        <Text fz="sm" mt="xs" className={classes.description}>
+        <Text fz="md" mt="xs" className={classes.description} pb={20}>
           {description}
         </Text>
       </Card.Section>
 
       <Card.Section className={classes.section}>
-        <Text mt="md" className={classes.label} c="dimmed">
-          
+        <Text mt="md" className={classes.label} c="dimmed">  
+
         </Text>
         <Group gap={7} mt={5}>
           {features}
@@ -56,7 +56,7 @@ export function BadgeCard2() {
 
       <Group mt="xs">
         <Button radius="md" style={{ flex: 1 }} color='dark' component='a' href='/bookings'>
-          Book now!
+          Show details
         </Button>
       </Group>
     </Card>
