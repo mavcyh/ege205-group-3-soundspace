@@ -1,5 +1,5 @@
 "use client"
-import { Paper, Center, Title, Checkbox, Group, Text } from '@mantine/core';
+import { Center, Title, Checkbox, Group, Text } from '@mantine/core';
 import classes from './InstrumentSelector.module.css';
 
 interface Instrument {
@@ -13,8 +13,7 @@ export const InstrumentSelector = ({instrumentData, selectedInstruments, onSelec
     selectedInstruments: Instrument[],
     onSelectedInstrumentsChange: Function }) => {
   return (
-    <Paper withBorder shadow="xl" p={30} mt={30} style={{ width: '370px', borderColor: 'orange' }} radius="md">
-      <Center><Title size='h4' mt={10} mb={25}>Rent an instrument</Title></Center>
+    <>
       {instrumentData.map((instrument) => (
         <Checkbox.Card
           key={instrument.locker_id}
@@ -32,6 +31,6 @@ export const InstrumentSelector = ({instrumentData, selectedInstruments, onSelec
           </Group>
         </Checkbox.Card>
       ))}
-    </Paper>
+    </>
   )
 }

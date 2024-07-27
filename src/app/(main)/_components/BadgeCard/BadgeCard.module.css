@@ -1,20 +1,19 @@
 .card {
-    background-color: light-dark(var(--mantine-color-white), var(--mantine-color-dark-7));
-  }
-  
-  .section {
-    border-bottom: rem(1px) solid light-dark(var(--mantine-color-gray-3), var(--mantine-color-dark-4));
-    padding-left: var(--mantine-spacing-md);
-    padding-right: var(--mantine-spacing-md);
-    padding-bottom: var(--mantine-spacing-md);
-  }
+  background-color: light-dark(var(--mantine-color-white), var(--mantine-color-dark-7));
+}
 
-  .description {
-    height: 200px;
-  }
-  
-  .label {
-    text-transform: uppercase;
-    font-size: var(--mantine-font-size-xs);
-    font-weight: 700;
-  } 
+.section {
+  border-bottom: rem(1px) solid light-dark(var(--mantine-color-gray-3), var(--mantine-color-dark-4));
+  padding-left: var(--mantine-spacing-md);
+  padding-right: var(--mantine-spacing-md);
+  padding-bottom: var(--mantine-spacing-md);
+} 
+
+.image {
+  background-size: cover;
+  height: 280px;
+}
+
+.description {
+  padding-bottom: 10px;
+}

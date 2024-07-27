@@ -1,0 +1,33 @@
+.Navbar {
+    height: 70px;
+    width: 100%;
+    padding: 8px 0px;
+    border-bottom: 1.5px solid black;
+    position: sticky;
+    top: 0;
+    z-index: 20;
+    background-color: white;
+}
+
+.logo {
+    height: 50px;
+    padding-left: 30px;
+}
+
+.buttons {
+    background-color: transparent;
+    color: black;
+    font-size: 20px;
+    padding-bottom: 8px;
+    height: 60px;
+}
+
+.buttons:hover {
+    background-color: transparent;
+    color:orange;
+
+}
+
+.buttonsgroup {
+    padding-right: 20px;
+}

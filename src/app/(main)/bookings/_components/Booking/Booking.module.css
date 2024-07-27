@@ -1,0 +1,24 @@
+.flexContainer {
+    display: flex;
+    align-items: stretch;
+    margin-top: 50px;
+}
+
+.leftPaper {
+    width: 724px;
+    border-color: black;
+    margin-right: 20px;
+    padding: 40px 0;
+    display: flex;
+    justify-content: center ;
+}
+
+.leftcontainer {
+    display: flex;
+    flex-direction: column;
+    margin-right: 70px;
+}
+
+.instrumentSelector {
+    flex-grow: 1;
+}
