@@ -1,6 +1,6 @@
 'use client'
 import { useForm } from "@mantine/form";
-import { Paper, Divider, Button, Text, Center, Title, List, TextInput } from "@mantine/core";
+import { Paper, Divider, Button, Text, Center, Title, List, TextInput, Flex } from "@mantine/core";
 import { IconCalendarClock } from "@tabler/icons-react";
 import classes from './OrderSummary.module.css';
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
@@ -46,7 +46,8 @@ export const OrderSummary = ({ selectedChips, selectedInstruments }:
                                                   `${bookingEndDatetime.toLocaleDateString()}
                                                    ${bookingEndDatetime.toLocaleTimeString().slice(0, -3)}`                                             
   const totalInstrumentPerHour = selectedInstruments.reduce((total, selectedInstrument) => total + selectedInstrument.price_per_hour, 0);
-  const bookingTotal = bookingHourCount * (10 + totalInstrumentPerHour);
+  const bookingPerHour = 10;
+  const bookingTotal = bookingHourCount * (bookingPerHour + totalInstrumentPerHour);
   
   const createBooking = (formValues: {email: string}) => {
     console.log("TO CREATE POST REQUEST TO /api/create-booking")
@@ -60,18 +61,29 @@ export const OrderSummary = ({ selectedChips, selectedInstruments }:
 
   return (
     <Paper withBorder shadow="xl" pb={30} pt={30} mt={15} pos='relative'
-    style={{ width: '500px', height: '710px', borderColor: 'orange' }}
+    style={{ width: '500px', height: '710px', borderColor: 'black' }}
     radius="md"
     >
       <Center><Title size='h4' mt={8}>Order Summary</Title></Center>
       <div style={{margin: '10px'}}>
-        <IconCalendarClock style={{color: 'gray'}}/>
-        <Text>Booking: {bookingStartDatetimeString} {bookingEndDatetimeString != null ? 'to' : ''} {bookingEndDatetimeString}</Text>
+        <Flex justify="flex-start">
+        <IconCalendarClock style={{color: 'gray', marginLeft: '30px', marginTop: '22px'}}/>
+          <p className={classes.bookingheader}><b>Booking:</b></p>
+          <p className={classes.datetime}>
+            <span className={classes.startdatetime}>{bookingStartDatetimeString}</span>
+            <span className={classes.datetimeplaceholder}>
+              {bookingEndDatetimeString == null ? ' --/--/---- --:-- ' : ''}
+              {'- '}
+              {bookingEndDatetimeString == null ? ' --/--/---- --:-- ' : ''}
+            </span>
+            <span className={classes.enddatetime}>{bookingEndDatetimeString}</span> 
+          </p>
+        </Flex>
       </div>
       <List className={classes.list}>
           {selectedInstruments.map((selectedInstrument) => (
             <List.Item key={selectedInstrument.locker_id} className={classes.instrumentOrder}>
-              {selectedInstrument.instrument_name}
+              <span className={classes.instrumentname}>{selectedInstrument.instrument_name}</span>
               <span className={classes.price}>${selectedInstrument.price_per_hour.toFixed(2)}/hour</span>
             </List.Item>
           ))}

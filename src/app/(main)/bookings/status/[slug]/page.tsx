@@ -8,8 +8,13 @@ export const metadata: Metadata = {
 export default function BookingStatus({ params }: { params: { slug: string } }) {
 
   return (
+    params.slug == 'success' ? 
     <Center>
-      <Title>{params.slug == 'success' ? 'Your booking was created successfully!' : 'An error occurred when trying to create your booking.'}</Title>
+      <Title>Booking created successfully!</Title>
     </Center> 
+    :
+    <Center>
+      <Title></Title>
+    </Center>
   )
 }

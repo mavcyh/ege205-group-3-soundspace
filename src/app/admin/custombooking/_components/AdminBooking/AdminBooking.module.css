@@ -1,0 +1,17 @@
+.paper {
+    margin-top: 50px;
+    width: 1000px;
+    padding: 50px;
+    padding-bottom: 35px;
+}
+
+.button {
+    width: 100px;
+    height: 40px;
+    font-size: 16px;
+    margin-right: 8px;
+}
+
+.datetimepicker {
+    margin-left: 50px   ;
+}

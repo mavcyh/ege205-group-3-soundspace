@@ -6,21 +6,21 @@
     display: block;
     list-style-type: none;
     font-size: large;
-    padding-left: 50px;
-    padding-top: 40px;
-    font-weight: 400;
+    padding-left: 45px;
+    padding-top: 20px;
+    font-weight: 500;
   }
   
   .price {
     position: absolute;
-    right: 30px;
+    right: 45px;
   }
   
   .submit {
     font-size: 15px;
     position: absolute;
     bottom: 40px; 
-    right: 50px;
+    right: 40px;
     width: 30%;
     height: 40px;
   }
@@ -28,9 +28,40 @@
   .email {
     position: absolute;
     top: 520px;   
-    width: 80%;
+    width: 84%;
   }
   
   .total {
-    padding-left: 50px;
+    position: absolute;
+    right: 45px;
+  }
+
+  .bookingheader {
+    font-size: 16px;
+    padding-left: 8px;
+    padding-top: 7px;
+    color: rgb(28, 126, 214);
+  }
+
+  .datetime {
+    padding-left: 7px;
+    padding-top: 4px;
+    font-size: 16px;
+  }
+
+  .startdatetime {
+    font-weight: 580;
+  }
+
+  .enddatetime {
+    font-weight: 580;
+  }
+
+  .instrumentname {
+    font-weight: 580;
+  }
+
+  .datetimeplaceholder {
+    padding-left: 7px;
+    font-size: 20px;
   }

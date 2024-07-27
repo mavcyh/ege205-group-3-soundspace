@@ -1,30 +1,22 @@
 import { Metadata } from "next";
-import React from 'react'
-import { Stack, Center, Paper, Button, Flex, Title } from "@mantine/core"
-import { Datetimepicker } from "./_components/Datetimepicker/Datetimepicker";
+import { AdminBooking } from "./_components/AdminBooking/AdminBooking";
+import { Title } from "@mantine/core";
 import classes from "./page.module.css"
 
+
 export const metadata: Metadata = {
-    title: "SoundSpace | Admin Custom Booking",
+    title: "SoundSpace | Admin Booking",
   };
 
-export default function AdminPassword() {
+const instrumentData: {locker_id: string, instrument_name: string, price_per_hour: number}[] =
+[{locker_id: '1', instrument_name: 'Fender Stratocaster', price_per_hour: 2.50},
+{locker_id: '2', instrument_name: 'Ibanez SR300E', price_per_hour: 1.50}]
+
+export default function CustomBooking() {
     return(
         <>
             <Title className={classes.title}>Custom Booking</Title>
-            <Center>
-                <Paper withBorder shadow="md" radius="md" className={classes.paper}>
-                    <Stack>
-                        <form>
-                            <Datetimepicker label="Start Datetime"/>
-                            <Datetimepicker label="End Datetime"/>
-                            <Flex justify="flex-end">
-                                <Button type="submit" className={classes.button}>Book</Button>
-                            </Flex>
-                        </form>  
-                    </Stack>
-                </Paper>
-            </Center>  
+            <AdminBooking instrumentData={instrumentData}/>
         </>    
-    );
+    )
 }

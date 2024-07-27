@@ -15,7 +15,6 @@ export const Navbar = () => {
                     <Button className={classes.buttons} component='a' href='/about'>About</Button>
                     <Button className={classes.buttons} component='a' href='/bookings'>Bookings</Button>
                 </Group>
-                <Button className={classes.buttons} component='a' href='/signin'>Sign In</Button>
             </Flex>
         </Box>
     </>
