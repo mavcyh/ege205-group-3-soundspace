@@ -1,0 +1,34 @@
+.heading {
+    font-weight: bold;
+    font-size: 30px;
+    margin-top: 40px;
+}
+
+.container {
+    margin-top: 170px;
+    margin-bottom: 250px;
+}
+
+.check {
+    height: 50px;
+    margin-top: 40px;
+}
+
+.desc {
+    text-align: center;
+    font-size: 18px;
+}
+
+.buttons {
+    background-color: transparent;
+    color: rgba(128,128,128);
+}
+
+.buttons:hover {
+    color: orange;
+    background-color: transparent;
+}
+
+.buttonsContainer {
+    position: absolute;
+}
