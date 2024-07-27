@@ -1,6 +1,6 @@
 'use client';
 import { useState } from "react";
-import { Stack, Center, Paper, Button, Flex, Group } from "@mantine/core";
+import { Stack, Center, Paper, Button, Flex, Group, Title } from "@mantine/core";
 import { Datetimepicker } from '../Datetimepicker/Datetimepicker';
 import { InstrumentSelector } from "@/components/InstrumentSelector/InstrumentSelector";
 import classes from './AdminBooking.module.css';
@@ -27,23 +27,21 @@ export const AdminBooking = ({instrumentData}: {instrumentData: Instrument[]}) =
             <Paper withBorder shadow="md" radius="md" className={classes.paper}>
                 <Stack>
                     <form>
-                      <Flex>
-                        <InstrumentSelector
+                        <Group className={classes.datetimepicker}>
+                          <Datetimepicker label="Start Datetime"/>
+                          <Datetimepicker label="End Datetime"/>
+                        </Group>  
+                        <p className={classes.heading}>Rent an instrument</p>
+                        <div className={classes.instrumentSelector}>
+                          <InstrumentSelector
                             instrumentData={instrumentData}
                             selectedInstruments={selectedInstruments}
                             onSelectedInstrumentsChange={handleSelectedInstrumentsChange}
-                        />
-                          <Group>
-                            <Group className={classes.datetimepicker}>
-                              <Datetimepicker label="Start Datetime"/>
-                              <Datetimepicker label="End Datetime"/>
-                            </Group>
-                            
-                            <Flex justify="flex-end">
-                                <Button type="submit" className={classes.button}>Book</Button>
-                            </Flex>
-                          </Group>
-                      </Flex>
+                          />
+                        </div>
+                        <Flex justify="flex-end">
+                          <Button type="submit" className={classes.button}>Book</Button>
+                        </Flex>
                     </form>  
                 </Stack>
             </Paper>

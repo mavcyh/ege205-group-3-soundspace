@@ -56,6 +56,7 @@ export const Booking = ({currentBookings, instrumentData}:
                     />
                 </Paper>
                 <Paper mt={10} px={20} pt={10} style={{height: '280px', borderColor: 'black'}} withBorder>
+                  <Center><Title size='h4' mt={10} mb={25}>Rent an instrument</Title></Center>
                   <InstrumentSelector instrumentData={instrumentData} selectedInstruments={selectedInstruments} onSelectedInstrumentsChange={handleSelectedInstrumentsChange}/>
                 </Paper>   
               </div>

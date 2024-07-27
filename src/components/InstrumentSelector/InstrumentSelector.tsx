@@ -14,7 +14,6 @@ export const InstrumentSelector = ({instrumentData, selectedInstruments, onSelec
     onSelectedInstrumentsChange: Function }) => {
   return (
     <>
-    <Center><Title size='h4' mt={10} mb={25}>Rent an instrument</Title></Center>
       {instrumentData.map((instrument) => (
         <Checkbox.Card
           key={instrument.locker_id}

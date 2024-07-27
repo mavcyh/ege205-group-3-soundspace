@@ -1,6 +1,6 @@
 .paper {
     margin-top: 50px;
-    width: 1000px;
+    width: 600px;
     padding: 50px;
     padding-bottom: 35px;
 }
@@ -9,9 +9,20 @@
     width: 100px;
     height: 40px;
     font-size: 16px;
-    margin-right: 8px;
 }
 
 .datetimepicker {
-    margin-left: 50px   ;
+    width: 500px;
+}
+
+.instrumentSelector {
+    width: 500px;   
+}
+
+
+.heading {
+    margin-top: 15px;
+    margin-bottom: 10px;
+    font-weight: 500;
+    font-size: 18px;
 }
