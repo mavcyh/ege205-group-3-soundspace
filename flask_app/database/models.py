@@ -20,7 +20,7 @@ class Booking(db.Model):
     end_datetime = db.Column(db.String, nullable=False)
     locker_numbers = db.relationship('Instrument', secondary=booking_instrument,
         backref=db.backref('bookings'))
-    email = db.Column(db.String, nullable=False)  
+    email = db.Column(db.String, nullable=False)
     device_dropped = db.Column(db.Boolean, default=False)     
 
 # TODO method to dynamically change "wear" of instruments e.g. 60% after 100 hours of active use + 3 months passive deterioration
@@ -28,7 +28,7 @@ class Instrument(db.Model): #Change this class to Locker
     locker_id = db.Column(db.String, primary_key=True, nullable=False)
     instrument_name = db.Column(db.String(255), nullable=False)
     name_abbr = db.Column(db.String(15), nullable=False)
-    wear_value = db.Column(db.REAL, nullable=False)
+    wear_value = db.Column(Numeric(precision=10, scale=2), nullable=False)
     price = db.Column(Numeric(precision=10, scale=2), nullable=False)  
 
 class Volume(db.Model):
@@ -37,11 +37,11 @@ class Volume(db.Model):
     volume_limit = db.Column(db.Integer, nullable=False)
     volume_data = db.Column(db.Integer, nullable=False)
 
-#Class Events(db.Model):
-    #id = db.Column(db.Integer, primary_key=True, nullable=False)
-    #timestamp = db.Column(db.String, primary_key=True, nullable=False)
-    #event_names = db.Column(db.String, primary_key=True, nullable=False)
-    #Severity = db.Column(db.Integer, primary_key=True, nullable=False)
+class Events(db.Model):
+    id = db.Column(db.Integer, primary_key=True, nullable=False)
+    timestamp = db.Column(db.String, nullable=False)
+    event_names = db.Column(db.String, nullable=False)
+    severity = db.Column(db.Integer, nullable=False)
     
 # Create a new table for the different events (Make use of get_session_active to check for the events)
 # table events (Columns: id as primary key(Auto increment), timestamp where it happended, name of events, severity of offence)

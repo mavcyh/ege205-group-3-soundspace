@@ -4,6 +4,7 @@ import { Paper, Divider, Button, Text, Center, Title, List, TextInput } from "@m
 import { IconCalendarClock } from "@tabler/icons-react";
 import classes from './OrderSummary.module.css';
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
+import { useState, useEffect, useRef } from "react";
 
 interface Instrument {
   locker_id: string,
@@ -47,8 +48,36 @@ export const OrderSummary = ({ selectedChips, selectedInstruments }:
                                                    ${bookingEndDatetime.toLocaleTimeString().slice(0, -3)}`                                             
   const totalInstrumentPerHour = selectedInstruments.reduce((total, selectedInstrument) => total + selectedInstrument.price_per_hour, 0);
   const bookingTotal = bookingHourCount * (10 + totalInstrumentPerHour);
+  const [dataB, setDataB] = useState<any>([]);
+  const latestDataRefB = useRef<any>(null);
+  const createBooking = async (formValues: {email: string}) => {
+    
+      try {
+        const response = await fetch("http://localhost:5000/api/create-booking", {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json"
+          },
+          body: JSON.stringify({
+              "start_datetime":  `${bookingStartDatetime?.toISOString()}`,
+              "end_datetime": `${bookingEndDatetime?.toISOString()}`,
+              "lockers": selectedInstruments.map(selectedInstrument => selectedInstrument.locker_id),
+              "email": `${formValues.email}`,
+            })  
+        });
+        if (!response.ok) {
+          throw new Error("Network response was not ok");
+        }
+        const result = await response.json();
+        setDataB(result);
+        latestDataRefB.current = result;
+      } catch (error) {
+        console.error("Error resetting locker wear:", error);
+      }
+    
   
-  const createBooking = (formValues: {email: string}) => {
+  
+
     console.log("TO CREATE POST REQUEST TO /api/create-booking")
     console.log(`Start Datetime: ${bookingStartDatetime}`)
     console.log(`End Datetime: ${bookingEndDatetime}`)

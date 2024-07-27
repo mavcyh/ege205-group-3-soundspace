@@ -1,9 +1,13 @@
 from flask_app import nsApi, nsAdmin, fields
 
-volume_model = nsAdmin.model("Volume", {
+volume_model = nsApi.model("Volume", {
     "time_stamp": fields.String,
     "volume_limit": fields.Integer,
     "volume_data": fields.Integer
+})
+
+get_booking_start_datetime = nsApi.model("Get Start Datetime", {
+    "start_datetime" : fields.List(fields.String)
 })
 
 create_booking_model = nsApi.model("Create Booking", {
@@ -26,6 +30,24 @@ change_master_password_model = nsAdmin.model("Change Master Password", {
     "new_master_password": fields.String
 })
 
+
+instrument_data_model = nsApi.model("InstrumentData", {
+    "locker_id": fields.String,
+    "instrument_name": fields.String,
+    "price_per_hour": fields.Float
+})
+
+
+current_booking_model = nsApi.model("CurrentBooking", {
+    "start_datetime": fields.String,
+    "end_datetime": fields.String
+})
+
+
+booking_availability_model = nsApi.model("BookingAvailability", {
+    "current_bookings": fields.List(fields.Nested(current_booking_model)),
+    "instrument_data": fields.List(fields.Nested(instrument_data_model))
+})
 # Wear value increases from 0 to 100 (Can exceed 100)
 # Create a model to update api with wear value (Sends an integer, if resetted send 0 to api)
 
