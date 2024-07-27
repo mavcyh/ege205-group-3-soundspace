@@ -31,7 +31,7 @@ export function BadgeCard1() {
         <Image component={NextImage} src={image} alt={title} className={classes.image}/>
       </Card.Section>
 
-      <Card.Section className={classes.section} mt="md">
+      <Card.Section className={classes.section} style={{ flex: 1 }} mt="md" >
         <Group justify="apart">
           <Text fz="lg" fw={500}>
             {title}
@@ -46,8 +46,8 @@ export function BadgeCard1() {
       </Card.Section>
 
       <Card.Section className={classes.section}>
-        <Text mt="md" className={classes.label} c="dimmed">
-          
+        <Text mt="md" className={classes.label} c="dimmed">  
+
         </Text>
         <Group gap={7} mt={5}>
           {features}

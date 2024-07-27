@@ -1,6 +1,6 @@
 'use client'
 import { useState } from 'react';
-import { Center, Title, Flex, Container, Paper, Space, Text } from '@mantine/core';
+import { Center, Title, Flex, Container, Paper } from '@mantine/core';
 import { DatePicker, DatesProvider } from '@mantine/dates';
 import { InstrumentSelector } from '@/components/InstrumentSelector/InstrumentSelector';
 import { TimeslotSelector } from '../TimeslotSelector/TimeslotSelector';
@@ -39,39 +39,28 @@ export const Booking = ({currentBookings, instrumentData}:
 
   return (
     <>
-    <Center>
-        <Flex justify='center'>
-          <Paper withBorder shadow="xl" pb={30} pt={30} mt={25} 
-          style={{ width: '725px', height: '710px', borderColor: 'black', backgroundColor: 'orange'}} radius="md">
-            <Flex>
-              <div className={classes.leftcontainer}> 
-                <Paper pr={15} style={{height: '350px', borderColor: 'black'}} withBorder> 
-                <Center><Title size='h4' mt={15} ml={20}>Select Date</Title></Center> 
-                  <DatePicker
-                    size="md"
-                    ml={20} mb={30}
-                    value={selectedDate}
-                    onChange={setSelectedDate} 
-                    minDate={new Date()} maxDate={maxDate}
-                    />
-                </Paper>
-                <Paper mt={10} px={20} pt={10} style={{height: '280px', borderColor: 'black'}} withBorder>
-                  <Center><Title size='h4' mt={10} mb={25}>Rent an instrument</Title></Center>
-                  <InstrumentSelector instrumentData={instrumentData} selectedInstruments={selectedInstruments} onSelectedInstrumentsChange={handleSelectedInstrumentsChange}/>
-                </Paper>   
-              </div>
-              <div className={classes.rightcontainer}>
-                <Paper style={{height: '640px', width: '340px', borderColor: 'black'}} withBorder>
-                  <TimeslotSelector currentBookings={currentBookings} selectedChips={selectedChips} setSelectedChips={setSelectedChips} selectedDate={selectedDate}/>
-                </Paper>
-              </div>
-            </Flex> 
-          </Paper>
-        <Container mt={10}>
-          <OrderSummary selectedChips={selectedChips} selectedInstruments={selectedInstruments}/>
-        </Container>
-      </Flex>
-    </Center>
+      <div className={classes.flexContainer}>
+        <Paper withBorder shadow="xl" className={classes.leftPaper} radius="md">
+          <Flex justify={'center'}>
+            <div className={classes.leftcontainer}>
+              <DatePicker
+                size="md" 
+                value={selectedDate}
+                onChange={setSelectedDate} 
+                minDate={new Date()} maxDate={maxDate}
+                mb={30}
+              />
+              <Flex direction='column' justify='center' className={classes.instrumentSelector}>   
+                <InstrumentSelector instrumentData={instrumentData} selectedInstruments={selectedInstruments} onSelectedInstrumentsChange={handleSelectedInstrumentsChange}/>
+              </Flex>
+            </div>
+            <Center>
+              <TimeslotSelector currentBookings={currentBookings} selectedChips={selectedChips} setSelectedChips={setSelectedChips} selectedDate={selectedDate}/>
+            </Center>
+          </Flex>
+        </Paper>
+        <OrderSummary selectedChips={selectedChips} selectedInstruments={selectedInstruments}/>
+      </div>
     </>
   )
 }

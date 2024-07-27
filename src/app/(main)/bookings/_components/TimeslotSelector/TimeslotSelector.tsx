@@ -108,19 +108,14 @@ export const TimeslotSelector = ({currentBookings, selectedChips, setSelectedChi
 
   return (
     <>
-      <Center>
-        <Title size='h4' mt={15}>Time Slots</Title>
-      </Center>
-      <Center>
-        <Flex>
-          <Stack mt={20} mr={20}>
-            {bookingChips.slice(0, 12)}
-          </Stack>
-          <Stack mt={20}>
-            {bookingChips.slice(12, 24)}
-          </Stack>
-        </Flex>
-      </Center>
-    </>  
+      <Flex>
+        <Stack mr={20}>
+          {bookingChips.slice(0, 12)}
+        </Stack>
+        <Stack>
+          {bookingChips.slice(12, 24)}
+        </Stack>
+      </Flex>
+    </>
   )
 }

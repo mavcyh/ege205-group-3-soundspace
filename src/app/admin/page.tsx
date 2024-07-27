@@ -3,7 +3,7 @@ import classes from "./page.module.css";
 import { Title, Paper, Center, Stack, Text, Button, Group } from '@mantine/core';
 
 export const metadata: Metadata = {
-  title: "SoundSpace | Admin Dashboard",
+  title: "SoundSpace | Dashboard",
 };
 
 export default function AdminDashboard() {

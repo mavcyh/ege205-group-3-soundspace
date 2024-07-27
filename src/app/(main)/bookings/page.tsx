@@ -19,9 +19,6 @@ export default function Bookings() {
   return (
       <>
         <Center>
-          <Title size='h3' mt={40}>Create a Booking</Title>
-        </Center>
-        <Center>
           <Booking currentBookings={currentBookings} instrumentData={instrumentData} />
         </Center>
       </>

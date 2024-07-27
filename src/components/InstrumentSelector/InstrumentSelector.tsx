@@ -31,6 +31,6 @@ export const InstrumentSelector = ({instrumentData, selectedInstruments, onSelec
           </Group>
         </Checkbox.Card>
       ))}
-    </>      
+    </>
   )
 }

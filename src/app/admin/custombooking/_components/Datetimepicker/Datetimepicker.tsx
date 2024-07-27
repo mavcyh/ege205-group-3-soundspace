@@ -1,6 +1,5 @@
 "use client"
 import { DateTimePicker } from '@mantine/dates';
-import React from 'react'
  
 export function Datetimepicker(props: {label: string}) {
    return (

@@ -31,7 +31,7 @@ export function BadgeCard3() {
         <Image component={NextImage} src={image} alt={title} className={classes.image}/>
       </Card.Section>
 
-      <Card.Section className={classes.section} mt="md">
+      <Card.Section className={classes.section} style={{ flex: 1 }} mt="md">
         <Group justify="apart">
           <Text fz="lg" fw={500}>
             {title}

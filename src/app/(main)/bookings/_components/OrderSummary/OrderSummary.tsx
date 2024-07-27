@@ -1,7 +1,7 @@
 'use client'
 import { useForm } from "@mantine/form";
 import { Paper, Divider, Button, Text, Center, Title, List, TextInput, Flex } from "@mantine/core";
-import { IconCalendarClock } from "@tabler/icons-react";
+import { IconCalendarClock, IconMail } from "@tabler/icons-react";
 import classes from './OrderSummary.module.css';
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
 
@@ -60,52 +60,63 @@ export const OrderSummary = ({ selectedChips, selectedInstruments }:
   }
 
   return (
-    <Paper withBorder shadow="xl" pb={30} pt={30} mt={15} pos='relative'
-    style={{ width: '500px', height: '710px', borderColor: 'black' }}
+    <Paper withBorder shadow="xl" pb={30} pt={30} pos='relative'
+    style={{ width: '500px', borderColor: 'black' }}
     radius="md"
-    >
-      <Center><Title size='h4' mt={8}>Order Summary</Title></Center>
-      <div style={{margin: '10px'}}>
-        <Flex justify="flex-start">
-        <IconCalendarClock style={{color: 'gray', marginLeft: '30px', marginTop: '22px'}}/>
-          <p className={classes.bookingheader}><b>Booking:</b></p>
-          <p className={classes.datetime}>
-            <span className={classes.startdatetime}>{bookingStartDatetimeString}</span>
-            <span className={classes.datetimeplaceholder}>
-              {bookingEndDatetimeString == null ? ' --/--/---- --:-- ' : ''}
-              {'- '}
-              {bookingEndDatetimeString == null ? ' --/--/---- --:-- ' : ''}
-            </span>
-            <span className={classes.enddatetime}>{bookingEndDatetimeString}</span> 
-          </p>
+    > 
+      <div>
+        <Flex align={'center'} pl={42} pb={12 }>
+          <IconCalendarClock style={{ color: 'gray', marginRight: '8px' }}/>
+          <Text fw={600} size={'16px'} >
+            <Text span c='blue' inherit>Booking: &nbsp;</Text>
+            {bookingEndDatetimeString == null ? '--/--/---- --:--' : bookingStartDatetimeString}
+            {' - '}
+            {bookingEndDatetimeString == null ? '--/--/---- --:--' : bookingEndDatetimeString}
+          </Text>
         </Flex>
+        <div style={{ position: 'relative' }}>
+          <Text pl={45} pb={20  } pos={'relative'}>Hours booked: {bookingHourCount}</Text>
+          <Text style={{ position: 'absolute', right: '45px', bottom: '20px'}}>@${bookingPerHour.toFixed(2)}/hour</Text>
+        </div>
+        
+        <Divider size={'sm'} />
       </div>
-      <List className={classes.list}>
-          {selectedInstruments.map((selectedInstrument) => (
-            <List.Item key={selectedInstrument.locker_id} className={classes.instrumentOrder}>
-              <span className={classes.instrumentname}>{selectedInstrument.instrument_name}</span>
-              <span className={classes.price}>${selectedInstrument.price_per_hour.toFixed(2)}/hour</span>
-            </List.Item>
-          ))}
+      
+
+      <Text p={'10 0 10 45'} c={'darkgray'} size="14px">Add-ons</Text>
+      <Divider mb={12} />
+      <List className={classes.addOns}>
+        {selectedInstruments.map((selectedInstrument) => (
+          <List.Item key={selectedInstrument.locker_id} className={classes.addOnOrder}>
+            <span className={classes.addOnName}>{selectedInstrument.instrument_name}</span>
+            <span className={classes.addOnPrice}>+${selectedInstrument.price_per_hour.toFixed(2)}/hour</span>
+          </List.Item>
+        ))}
       </List>
       <div >
       </div>
-      <Divider className={classes.divider} my={20}/>
-      <Text className={classes.total}>
-        <b>Total:</b> ${bookingTotal.toFixed(2)}
-      </Text>
+      <div className={classes.total}>
+        <Divider size={'sm'} mb={48} variant='dashed'/>
+          <Text size="xl" pos={'absolute'} right={45} bottom={8}>
+            <b>Total:</b> ${bookingTotal.toFixed(2)}
+          </Text>
+        <Divider size={'sm'}/>
+      </div>
       <form onSubmit={form.onSubmit((formValues) => createBooking(formValues))}>
-        <Center>
+        <div className={classes.email}>
           <TextInput
-          className={classes.email}
           size='md'
-          label="Email"
+          label='Email'
+          description='Booking details will be sent to this email.'
+          leftSectionPointerEvents="none"
+          leftSection={<IconMail />}
           placeholder="you@example.com"
           required
-          mt="md"
+          m={'auto'}
+          w='84%'
           {...form.getInputProps('email')}
           />   
-        </Center>
+        </div>
         <Button className={classes.submit} type="submit" color='blue'>Create Booking</Button>
       </form>
     </Paper>

@@ -30,8 +30,8 @@ export const AdminBooking = ({instrumentData}: {instrumentData: Instrument[]}) =
                         <Group className={classes.datetimepicker}>
                           <Datetimepicker label="Start Datetime"/>
                           <Datetimepicker label="End Datetime"/>
-                        </Group>  
-                        <p className={classes.heading}>Rent an instrument</p>
+                        </Group>
+                        <p className={classes.heading}>Unlock an instrument</p>
                         <div className={classes.instrumentSelector}>
                           <InstrumentSelector
                             instrumentData={instrumentData}
