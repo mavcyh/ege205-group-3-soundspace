@@ -1,13 +1,24 @@
 from flask import request
 from flask_app import socketio
-from flask_app.database.crud import write_volume_level_data
+from flask_app.database.crud import write_volume_level_data, update_event
 
 #region SOCKETIO EVENTS
 
 #region bbbwRoomDoor
+@socketio.event
+def bbbwRoomDoor_BrokenInto(data):
+    if data["door_broken_into"] == True:
+        event = "door broken into"
+        update_event(event)
 
 #endregion bbbwRoomDoor
-
+@socketio.event
+def change_master_password(master_password):
+    TxData = {
+    "master_password": master_password,
+    "temporary_password": "123412",
+    }
+    socketio.emit("serverToRoomDoor_updatePasswords ", TxData)
 #region bbbwInstrumentLocker
 
 #endregion bbbwInstrumentLocker
@@ -18,7 +29,7 @@ def bbbwSessionInfo_updateVolumeLevel(data):
     if data["volume_level"] >= 10:
         TxData = {}
         socketio.emit("serverToSessionInfo_maximumVolumeExceeded", TxData)
-    write_volume_level_data(str(data["time_stamp"]),[data["volume_level"]], 10)
+    write_volume_level_data(data["time_stamp"],[data["volume_level"]], 10)
 
 #endregion bbbwSessionInfo
 
@@ -28,9 +39,14 @@ def bbbwSessionInfo_updateVolumeLevel(data):
 def bbbwMiscellanous_updateRoomState(data):
     print(f"Humidity Level: {data["humidity_level"]}%")
     print("Motion Detected" if data["motion_detected"] else "Motion Not Detected")
+    event = "motion"
+    if data["motion_detected"]:
+        update_event(event)
 
 @socketio.event
 def bbbwMiscellanous_deviceDropped():
+    event = "dropped"
+    update_event(event)
     print("DEVICE DROPPED!")
 
 #endregion bbbwMiscellanous

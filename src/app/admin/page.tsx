@@ -1,5 +1,6 @@
 import { Metadata } from "next";
 import classes from "./page.module.css";
+import { Adminfetch } from "./_components/adminfetch";
 import { Title, Paper, Center, Stack, Text, Button, Group } from '@mantine/core';
 
 export const metadata: Metadata = {
@@ -42,6 +43,7 @@ export default function AdminDashboard() {
           </Paper>
         </Stack>
       </Center>
+      <Adminfetch/>
     </main>
   );
 }

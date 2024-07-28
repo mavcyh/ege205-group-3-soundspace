@@ -136,6 +136,7 @@ def check_door_closed():
         database["door_broken_into"] = True
         alarm_timer()
         update_OLED(alarm_active=True)
+        sio.emit("bbbwRoomDoor_BrokenInto", {"door_broken_into": True})
     # Door closed normally
     elif door_closed_current and database["door_locked"] and not database["door_broken_into"]:
         update_OLED()
