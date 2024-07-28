@@ -1,7 +1,7 @@
 'use client'
 import { useForm } from "@mantine/form";
-import { Paper, Divider, Button, Text, Center, Title, List, TextInput, Flex } from "@mantine/core";
-import { IconCalendarClock, IconMail } from "@tabler/icons-react";
+import { Paper, Divider, Button, Text, Center, Title, List, TextInput, Flex, Alert } from "@mantine/core";
+import { IconCalendarClock, IconMail, IconAlertCircle } from "@tabler/icons-react";
 import classes from './OrderSummary.module.css';
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import { useState, useEffect, useRef } from "react";
@@ -19,6 +19,8 @@ export const OrderSummary = ({ selectedChips, selectedInstruments }:
   const router = useRouter();
   const pathname = usePathname();
   
+  const [errorMessage, setErrorMessage] = useState<string | null>(null);
+
   const form = useForm({
     mode: 'uncontrolled',
     initialValues: { email: '' },
@@ -103,6 +105,11 @@ export const OrderSummary = ({ selectedChips, selectedInstruments }:
           </Text>
         <Divider size={'sm'}/>
       </div>
+      {errorMessage && (
+        <Alert icon={<IconAlertCircle size={16} />} title="Error" color="red">
+          {errorMessage}
+        </Alert>
+      )}
       <form onSubmit={form.onSubmit((formValues) => createBooking(formValues))}>
         <div className={classes.email}>
           <TextInput

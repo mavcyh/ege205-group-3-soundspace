@@ -26,7 +26,7 @@ class api_create_booking(Resource):
         locker_ids = nsApi.payload["lockers"]
         email = nsApi.payload["email"]
         if not is_time_slot_available(start_datetime, end_datetime):
-            return 
+            return {"message": "Timeslot is not available!"}, 400
         
         create_booking(start_datetime, end_datetime, locker_ids, email)
 #endregion BOOKING PAGE
