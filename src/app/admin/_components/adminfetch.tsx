@@ -68,7 +68,7 @@ export function Adminfetch() {
           headers: {
             "Content-Type": "application/json",
           },
-          body: JSON.stringify({ start_datetime:"no start_datetime"}),  // Sending an empty body
+          body: JSON.stringify({ start_datetime: ""}),  // Sending an empty body
         });
   
         if (!response.ok) {
