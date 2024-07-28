@@ -2,7 +2,7 @@ from flask import jsonify
 from flask_restx import Resource
 from flask_app import nsApi, nsAdmin
 from flask_app import socketio
-from flask_app.database.crud import create_booking, is_time_slot_available, get_volume_data_by_start_datetime, reset_wear_value, get_wear_values, get_booking_availability_and_instruments, get_start_datetime
+from flask_app.database.crud import create_booking, is_time_slot_available, get_volume_data_by_start_datetime, reset_wear_value, get_wear_values, get_booking_availability_and_instruments, get_start_datetime, get_instrument_names_from_locker
 from .models import volume_model, create_booking_model, reset_locker_wear_model, send_locker_wear_model, change_master_password_model, booking_availability_model, get_booking_start_datetime, master_password_model
 from flask_app.socketio_events.bbbw import change_master_password
 #region BOOKING PAGE

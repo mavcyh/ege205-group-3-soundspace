@@ -47,13 +47,6 @@ export default async function Bookings() {
   return (
       <>
         <Center>
-<<<<<<< Updated upstream
-=======
-          <Title size='h3' mt={40}>Create a Booking</Title>
-        </Center>
-        <Center>
-          <div>{currentBookings}</div>
->>>>>>> Stashed changes
           <Booking currentBookings={currentBookings} instrumentData={instrumentData} />
         </Center>
       </>

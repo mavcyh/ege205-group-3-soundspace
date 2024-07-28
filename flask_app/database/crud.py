@@ -135,6 +135,7 @@ def get_volume_data_by_start_datetime(start_datetime):
         (Volume.time_stamp <= end_datetime_obj)
     ).all()
     
+    
     volume_data_list = []
     for volume in volumes:
         volume_dict = {
@@ -145,6 +146,18 @@ def get_volume_data_by_start_datetime(start_datetime):
         volume_data_list.append(volume_dict)
     
     return volume_data_list
+
+def get_instrument_names_from_locker(locker_ids):
+    if not locker_ids:
+        return []
+    
+    instrument_names = []
+    for locker_id in locker_ids:
+        instrument = Instrument.query.filter_by(locker_id=locker_id).first()
+        if instrument:
+            instrument_names.append(instrument.instrument_name)
+
+    return instrument_names
 
 def get_session_active():
     now = datetime.now(timezone.utc).isoformat()
