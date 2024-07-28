@@ -12,7 +12,7 @@ export default function About() {
         <>
             <Container mt={10} >
                 <Center>
-                    <Title size="h3" mt={40}>About Us</Title>
+                    <Title size="h3" mt={30}>About Us</Title>
                 </Center>
                 <Text mt={10} style={{textAlign: 'center'}}>
                     We are a premier music studio rental service dedicated to providing musicians,

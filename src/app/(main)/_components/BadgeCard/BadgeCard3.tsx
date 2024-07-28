@@ -2,15 +2,15 @@
 import { Card, Image, Text, Group, Badge, Button } from '@mantine/core';
 import classes from './BadgeCard.module.css';
 import NextImage from 'next/image'
-import musicInstruments from '@/assets/home-musicInstruments.jpg'
+import musicInstruments from '@/assets/home-booking.png'
 
 const mockdata = {
   image:
     musicInstruments,
-  title: 'Automated Lockers',
-  country: '24/7 Access',
+  title: 'Easy Booking',
+  tag: 'Quick & Easy',
   description:
-    "With our user-friendly platform, you can rent the instrument you need directly from a secure, automated locker. Whether you're a seasoned musician or just starting out, our system ensures you have access to top-notch equipment whenever you need it. Book online, receive a unique access code, and retrieve your rented instrument from our state-of-the-art lockers, available 24/7.",
+    "At SoundSpace, we've made our booking process as simple and convenient as possible. With our user-friendly online booking system, you can easily check studio availability, choose your preferred time slots, and book your session in just a few clicks. Whether you're planning a last-minute rehearsal or scheduling a long-term project, our flexible booking options accommodate your needs.",
   badges: [
     { emoji: '🙆‍♀️', label: 'Convenient' },
     { emoji: '👀', label: 'Wide Selection' },
@@ -18,7 +18,7 @@ const mockdata = {
 };
 
 export function BadgeCard3() {
-  const { image, title, description, country, badges } = mockdata;
+  const { image, title, description, tag, badges } = mockdata;
   const features = badges.map((badge) => (
     <Badge variant="light" key={badge.label} leftSection={badge.emoji}>
       {badge.label}
@@ -28,19 +28,19 @@ export function BadgeCard3() {
   return (
     <Card withBorder radius="md" p="md" mt={30} className={classes.card} style={{width: '32%'}}>
       <Card.Section>
-        <Image component={NextImage} src={image} alt={title} height={180} />
+        <Image component={NextImage} src={image} alt={title} className={classes.image}/>
       </Card.Section>
 
-      <Card.Section className={classes.section} mt="md">
+      <Card.Section className={classes.section} style={{ flex: 1 }} mt="md">
         <Group justify="apart">
           <Text fz="lg" fw={500}>
             {title}
           </Text>
           <Badge size="sm" variant="light">
-            {country}
+            {tag}
           </Badge>
         </Group>
-        <Text fz="sm" mt="xs" className={classes.description}>
+        <Text fz="md" mt="xs" className={classes.description}>
           {description}
         </Text>
       </Card.Section>

@@ -9,7 +9,6 @@ export default function signIn() {
         username: '',
         email: '',
         password: '',
-        termsOfService: false,
     },
 
     validate: {
@@ -21,7 +20,7 @@ export default function signIn() {
 
   return (
     <>       
-        <Container size={500} my={40}>
+        <Container size={500} mt={150} mb={220}>
             <Center>
                 <Title size='h3'>Sign in</Title>
             </Center>
