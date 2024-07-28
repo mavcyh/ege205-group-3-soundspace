@@ -7,7 +7,6 @@ from flask_app.database.crud import update_instrument_wear_values, get_session_a
 
 scheduler = BackgroundScheduler()
 
-
 session_active = False  # Global variable to keep track of session state
 
 def check_session():
@@ -20,13 +19,13 @@ def check_session():
                 session_active = True
                 remaining_time_seconds = (end_datetime - current_time).total_seconds()
                 remaining_time_seconds = int(remaining_time_seconds)
+                print(f"Remaning time (seconds): {remaining_time_seconds}")
             else:
                 session_active = False
         else:
             session_active = False
         
-        print(session_active)
-        print(remaining_time_seconds)
+        print(f"Session active: {session_active}")
 
 def core_per_second():
     with app.app_context():
@@ -45,4 +44,4 @@ scheduler.add_job(core_per_second, 'cron', second='*')
 
 scheduler.start()
 
-check_session()
+# check_session()

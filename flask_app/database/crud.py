@@ -5,6 +5,7 @@ from datetime import datetime, timezone
 from decimal import Decimal
 import random
 
+# Database format TO TZ format
 def convert_to_utc_datetime(datetime_str):
     # Parse the datetime string to a naive datetime object
     naive_dt = datetime.strptime(datetime_str, "%Y-%m-%dT%H:%M")
@@ -14,10 +15,12 @@ def convert_to_utc_datetime(datetime_str):
     
     return utc_dt
 
+# TZ format TO Python format
 def create_datetime_with_tz(datetime_str):
     # Directly convert string to timezone-aware datetime
     return datetime.fromisoformat(datetime_str.replace("Z", "+00:00"))
 
+# TZ format TO Database format
 def format_datetime(iso_datetime_str):
     # Parse the ISO 8601 string to a datetime object
     dt = datetime.fromisoformat(iso_datetime_str.replace("Z", "+00:00"))
@@ -30,7 +33,6 @@ def format_datetime(iso_datetime_str):
 def format_time(datetime_str):
     datetime_obj = datetime.fromisoformat(datetime_str).replace(tzinfo=timezone.utc)
     return datetime_obj.strftime('%H:%M')
-
 
 def is_time_slot_available(start_datetime, end_datetime):
     start_datetime_obj = create_datetime_with_tz(start_datetime)
@@ -57,10 +59,9 @@ def create_booking(start_datetime, end_datetime, locker_ids, email, temporary_pa
         locker = Instrument.query.get(locker_id)
         if locker:
             new_booking.locker_numbers.append(locker)
-    print(new_booking)
     db.session.add(new_booking)
     db.session.commit()
-
+    print("New booking created.")
 
 def write_volume_level_data(time_stamp, volume_data, volume_limit):
     volume_data_json = json.dumps(volume_data).strip('[]')
@@ -114,7 +115,7 @@ def get_current_session_volume_data():
 
 def get_volume_data_by_start_datetime(start_datetime):
 
-    if start_datetime == "no start_datetime":
+    if start_datetime == "":
         start_datetime_obj, end_datetime_obj = get_session_active()
         if not start_datetime_obj or not end_datetime_obj:
             volume_data_list = []
@@ -204,8 +205,8 @@ def get_booking_availability_and_instruments():
     current_bookings_list = []
     for booking in current_bookings:
         booking_dict = {
-            'start_datetime': booking.start_datetime,
-            'end_datetime': booking.end_datetime
+            'start_datetime': convert_to_utc_datetime(booking.start_datetime),
+            'end_datetime': convert_to_utc_datetime(booking.end_datetime)
         }
         current_bookings_list.append(booking_dict)
     
@@ -236,7 +237,6 @@ def insert_instrument_data():
         new_instrument = Instrument(
             locker_id=locker_id,
             instrument_name=instrument_name,
-            name_abbr=name_abbr,
             wear_value=wear_value,
             price=price
         )
