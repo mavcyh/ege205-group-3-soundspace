@@ -1,33 +1,23 @@
-import { Button, Group, Flex, Box, Image } from '@mantine/core'
-import logo from "@/assets/soundspace-logo.jpg"
-import notifBell from '@/assets/notifBell.png'
+import React from 'react'
+import { Flex, Image, Box, Button, Group } from '@mantine/core'
 import NextImage from 'next/image'
+import logo from "@/assets/soundspace-logo.jpg"
+import classes from "./Navbar.module.css"
 
 export const Navbar = () => {
-
   return (
-    <>    
-      <Box style={{borderBottom: '1.5px solid rgb(49, 49, 49) ', backgroundColor: 'white', zIndex: 2}} pos={'sticky'} top={0}>
-        <Flex style={{height:'60px', padding:'2px'}}
-            justify={'space-between'}
-            wrap='wrap'>
-          <Image priority={true} component={NextImage} src={logo} alt='logo' h={50} fit='contain' w="auto" style={{paddingTop: '8px', paddingLeft:'20px'}}/>
-          <Group style={{paddingRight: '50px'}}>
-            <Button 
-            variant="transparent" color="orange" size="md" component='a' href='/' 
-            >Home</Button>
-            <Button variant="transparent" color="orange" size="md" component='a' href='/about' 
-            >About</Button>
-            <Button variant="transparent" color="orange" size="md" component='a' href='/bookings' 
-            >Bookings</Button>
-          </Group>     
+    <>
+        <Box className={classes.Navbar}>
+            <Flex justify='space-between'>
+                <Image component={NextImage} src={logo} alt='logo' className={classes.logo}/>
+                <Group className={classes.buttonsgroup}>
+                  <Button className={classes.buttons} component='a' href='/'>Home</Button>
+                  <Button className={classes.buttons} component='a' href='/about'>About</Button>
+                  <Button className={classes.buttons} component='a' href='/bookings'>Bookings</Button>
+                </Group>
+            </Flex>
+        </Box>
+    </>
+  )
+}
 
-          <Group>
-            <Image component={NextImage} src={notifBell} alt='notifBell' h={20}/>      
-            <Button variant="transparent" color="black" size="md" component='a' href='/signin' 
-            >Sign In</Button>
-          </Group>
-        </Flex>
-      </Box>  
-    </>   
-)}

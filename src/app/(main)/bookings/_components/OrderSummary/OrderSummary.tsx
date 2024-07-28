@@ -1,7 +1,7 @@
 'use client'
 import { useForm } from "@mantine/form";
-import { Paper, Divider, Button, Text, Center, Title, List, TextInput } from "@mantine/core";
-import { IconCalendarClock } from "@tabler/icons-react";
+import { Paper, Divider, Button, Text, Center, Title, List, TextInput, Flex } from "@mantine/core";
+import { IconCalendarClock, IconMail } from "@tabler/icons-react";
 import classes from './OrderSummary.module.css';
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import { useState, useEffect, useRef } from "react";
@@ -47,37 +47,10 @@ export const OrderSummary = ({ selectedChips, selectedInstruments }:
                                                   `${bookingEndDatetime.toLocaleDateString()}
                                                    ${bookingEndDatetime.toLocaleTimeString().slice(0, -3)}`                                             
   const totalInstrumentPerHour = selectedInstruments.reduce((total, selectedInstrument) => total + selectedInstrument.price_per_hour, 0);
-  const bookingTotal = bookingHourCount * (10 + totalInstrumentPerHour);
-  const [dataB, setDataB] = useState<any>([]);
-  const latestDataRefB = useRef<any>(null);
-  const createBooking = async (formValues: {email: string}) => {
-    
-      try {
-        const response = await fetch("http://localhost:5000/api/create-booking", {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json"
-          },
-          body: JSON.stringify({
-              "start_datetime":  `${bookingStartDatetime?.toISOString()}`,
-              "end_datetime": `${bookingEndDatetime?.toISOString()}`,
-              "lockers": selectedInstruments.map(selectedInstrument => selectedInstrument.locker_id),
-              "email": `${formValues.email}`,
-            })  
-        });
-        if (!response.ok) {
-          throw new Error("Network response was not ok");
-        }
-        const result = await response.json();
-        setDataB(result);
-        latestDataRefB.current = result;
-      } catch (error) {
-        console.error("Error resetting locker wear:", error);
-      }
-    
+  const bookingPerHour = 10;
+  const bookingTotal = bookingHourCount * (bookingPerHour + totalInstrumentPerHour);
   
-  
-
+  const createBooking = (formValues: {email: string}) => {
     console.log("TO CREATE POST REQUEST TO /api/create-booking")
     console.log(`Start Datetime: ${bookingStartDatetime}`)
     console.log(`End Datetime: ${bookingEndDatetime}`)
@@ -88,41 +61,63 @@ export const OrderSummary = ({ selectedChips, selectedInstruments }:
   }
 
   return (
-    <Paper withBorder shadow="xl" pb={30} pt={30} mt={15} pos='relative'
-    style={{ width: '500px', height: '710px', borderColor: 'orange' }}
+    <Paper withBorder shadow="xl" pb={30} pt={30} pos='relative'
+    style={{ width: '500px', borderColor: 'black' }}
     radius="md"
-    >
-      <Center><Title size='h4' mt={8}>Order Summary</Title></Center>
-      <div style={{margin: '10px'}}>
-        <IconCalendarClock style={{color: 'gray'}}/>
-        <Text>Booking: {bookingStartDatetimeString} {bookingEndDatetimeString != null ? 'to' : ''} {bookingEndDatetimeString}</Text>
+    > 
+      <div>
+        <Flex align={'center'} pl={42} pb={12 }>
+          <IconCalendarClock style={{ color: 'gray', marginRight: '8px' }}/>
+          <Text fw={600} size={'16px'} >
+            <Text span c='blue' inherit>Booking: &nbsp;</Text>
+            {bookingEndDatetimeString == null ? '--/--/---- --:--' : bookingStartDatetimeString}
+            {' - '}
+            {bookingEndDatetimeString == null ? '--/--/---- --:--' : bookingEndDatetimeString}
+          </Text>
+        </Flex>
+        <div style={{ position: 'relative' }}>
+          <Text pl={45} pb={20  } pos={'relative'}>Hours booked: {bookingHourCount}</Text>
+          <Text style={{ position: 'absolute', right: '45px', bottom: '20px'}}>@${bookingPerHour.toFixed(2)}/hour</Text>
+        </div>
+        
+        <Divider size={'sm'} />
       </div>
-      <List className={classes.list}>
-          {selectedInstruments.map((selectedInstrument) => (
-            <List.Item key={selectedInstrument.locker_id} className={classes.instrumentOrder}>
-              {selectedInstrument.instrument_name}
-              <span className={classes.price}>${selectedInstrument.price_per_hour.toFixed(2)}/hour</span>
-            </List.Item>
-          ))}
+      
+
+      <Text p={'10 0 10 45'} c={'darkgray'} size="14px">Add-ons</Text>
+      <Divider mb={12} />
+      <List className={classes.addOns}>
+        {selectedInstruments.map((selectedInstrument) => (
+          <List.Item key={selectedInstrument.locker_id} className={classes.addOnOrder}>
+            <span className={classes.addOnName}>{selectedInstrument.instrument_name}</span>
+            <span className={classes.addOnPrice}>+${selectedInstrument.price_per_hour.toFixed(2)}/hour</span>
+          </List.Item>
+        ))}
       </List>
       <div >
       </div>
-      <Divider className={classes.divider} my={20}/>
-      <Text className={classes.total}>
-        <b>Total:</b> ${bookingTotal.toFixed(2)}
-      </Text>
+      <div className={classes.total}>
+        <Divider size={'sm'} mb={48} variant='dashed'/>
+          <Text size="xl" pos={'absolute'} right={45} bottom={8}>
+            <b>Total:</b> ${bookingTotal.toFixed(2)}
+          </Text>
+        <Divider size={'sm'}/>
+      </div>
       <form onSubmit={form.onSubmit((formValues) => createBooking(formValues))}>
-        <Center>
+        <div className={classes.email}>
           <TextInput
-          className={classes.email}
           size='md'
-          label="Email"
+          label='Email'
+          description='Booking details will be sent to this email.'
+          leftSectionPointerEvents="none"
+          leftSection={<IconMail />}
           placeholder="you@example.com"
           required
-          mt="md"
+          m={'auto'}
+          w='84%'
           {...form.getInputProps('email')}
           />   
-        </Center>
+        </div>
         <Button className={classes.submit} type="submit" color='blue'>Create Booking</Button>
       </form>
     </Paper>

@@ -1,5 +1,5 @@
 "use client"
-import { Paper, Center, Title, Flex, Stack, Chip } from '@mantine/core';
+import { Center, Title, Flex, Stack, Chip } from '@mantine/core';
 import { IconCalendarDot, IconCircleDotted, IconCircleLetterE, IconCircleLetterS } from '@tabler/icons-react';
 import classes from './TimeslotSelector.module.css';
 
@@ -107,22 +107,15 @@ export const TimeslotSelector = ({currentBookings, selectedChips, setSelectedChi
     }
 
   return (
-    <Paper withBorder shadow="xl" pb={30} pt={30} mt={15}
-    style={{ width: '300px', height: '710px', borderColor: 'orange' }}
-    radius="md">
-    <Center>
-        <Title size='h4' mt={8}>Time Slots</Title>
-    </Center>
-    <Center>
-        <Flex>
-            <Stack mt={30} mr={20}>
-                {bookingChips.slice(0, 12)}
-            </Stack>
-            <Stack mt={30}>
-                {bookingChips.slice(12, 24)}
-            </Stack>
-        </Flex>
-    </Center>
-  </Paper>
+    <>
+      <Flex>
+        <Stack mr={20}>
+          {bookingChips.slice(0, 12)}
+        </Stack>
+        <Stack>
+          {bookingChips.slice(12, 24)}
+        </Stack>
+      </Flex>
+    </>
   )
 }
