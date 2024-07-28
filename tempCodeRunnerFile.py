@@ -1,1 +1,0 @@
-send_confirmation_booking_email("2024/07/28 22:00", "2024/07/28 23:00", ["Fender Stratocaster", "Ibanez SR300E"], "mavcyh@gmail.com")
