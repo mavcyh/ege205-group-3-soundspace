@@ -5,6 +5,7 @@ from flask_app import socketio
 from flask_app.database.crud import create_booking, is_time_slot_available, get_volume_data_by_start_datetime, reset_wear_value, get_wear_values, get_booking_availability_and_instruments, get_start_datetime, get_instrument_names_from_locker
 from .models import volume_model, create_booking_model, reset_locker_wear_model, send_locker_wear_model, change_master_password_model, booking_availability_model, get_booking_start_datetime, master_password_model
 from flask_app.socketio_events.bbbw import change_master_password
+import random
 #region BOOKING PAGE
 
 # Return an array of all the bookings with a start time beyond the current datetime.
@@ -29,7 +30,9 @@ class api_create_booking(Resource):
         if not is_time_slot_available(start_datetime, end_datetime):
             return {"message": "Timeslot is not available!"}, 400
         
-        create_booking(start_datetime, end_datetime, locker_ids, email)
+        temporary_password = str(random.randint(0, 999999)).zfill(6)
+
+        create_booking(start_datetime, end_datetime, locker_ids, email, temporary_password)
 #endregion BOOKING PAGE
 
 

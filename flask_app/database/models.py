@@ -21,8 +21,9 @@ class Booking(db.Model):
     locker_numbers = db.relationship('Instrument', secondary=booking_instrument,
         backref=db.backref('bookings'))
     email = db.Column(db.String, nullable=False)
-    device_dropped = db.Column(db.Boolean, default=False)     
-
+    temporary_password = db.Column(db.String(6), nullable=False)  
+    device_dropped = db.Column(db.Boolean, default=False)  
+ 
 # TODO method to dynamically change "wear" of instruments e.g. 60% after 100 hours of active use + 3 months passive deterioration
 class Instrument(db.Model): #Change this class to Locker
     locker_id = db.Column(db.String, primary_key=True, nullable=False)

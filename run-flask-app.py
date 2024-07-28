@@ -1,7 +1,7 @@
 import eventlet
 from eventlet import wsgi
 from flask_app import app, db
-from flask_app.database.crud import insert_instrument_data, coded_booking
+from flask_app.database.crud import insert_instrument_data
 
 # CREATE DATABASE ON FIRST RUN (in newly created "instance" folder)
 with app.app_context():
