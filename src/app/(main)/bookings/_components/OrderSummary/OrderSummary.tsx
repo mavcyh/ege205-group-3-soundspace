@@ -1,9 +1,10 @@
 'use client'
 import { useForm } from "@mantine/form";
-import { Paper, Divider, Button, Text, Center, Title, List, TextInput, Flex } from "@mantine/core";
-import { IconCalendarClock, IconMail } from "@tabler/icons-react";
+import { Paper, Divider, Button, Text, Center, Title, List, TextInput, Alert, Flex } from "@mantine/core";
+import { IconCalendarClock, IconMail, IconAlertCircle } from "@tabler/icons-react";
 import classes from './OrderSummary.module.css';
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
+import { useState, useEffect, useRef } from "react";
 
 interface Instrument {
   locker_id: string,
@@ -18,6 +19,8 @@ export const OrderSummary = ({ selectedChips, selectedInstruments }:
   const router = useRouter();
   const pathname = usePathname();
   
+  const [errorMessage, setErrorMessage] = useState<string | null>(null);
+
   const form = useForm({
     mode: 'uncontrolled',
     initialValues: { email: '' },
@@ -46,17 +49,40 @@ export const OrderSummary = ({ selectedChips, selectedInstruments }:
                                                   `${bookingEndDatetime.toLocaleDateString()}
                                                    ${bookingEndDatetime.toLocaleTimeString().slice(0, -3)}`                                             
   const totalInstrumentPerHour = selectedInstruments.reduce((total, selectedInstrument) => total + selectedInstrument.price_per_hour, 0);
+  const [dataB, setDataB] = useState<any>([]);
+  const latestDataRefB = useRef<any>(null);
   const bookingPerHour = 10;
   const bookingTotal = bookingHourCount * (bookingPerHour + totalInstrumentPerHour);
   
-  const createBooking = (formValues: {email: string}) => {
-    console.log("TO CREATE POST REQUEST TO /api/create-booking")
-    console.log(`Start Datetime: ${bookingStartDatetime}`)
-    console.log(`End Datetime: ${bookingEndDatetime}`)
-    console.log(`Locker IDs booked: ${(selectedInstruments.map(selectedInstrument => selectedInstrument.locker_id) + ', ')}`)
-    console.log(`Email: ${formValues.email}`);
+  const createBooking = async (formValues: {email: string}) => {
     
-    router.push(`${pathname}/status/success`);
+      try {
+        const response = await fetch("http://localhost:5000/api/create-booking", {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json"
+          },
+          body: JSON.stringify({
+              "start_datetime":  `${bookingStartDatetime?.toISOString()}`,
+              "end_datetime": `${bookingEndDatetime?.toISOString()}`,
+              "lockers": selectedInstruments.map(selectedInstrument => selectedInstrument.locker_id),
+              "email": `${formValues.email}`,
+            })  
+        });
+        if (!response.ok) {
+          const errorData = await response.json();
+          setErrorMessage(errorData.message || "An error occurred");
+          return;
+        }
+        const result = await response.json();
+        setDataB(result);
+         
+        latestDataRefB.current = result;
+        router.push(`${pathname}/status/success`);
+    } catch (error) {
+        console.error("Error creating booking:", error);
+        setErrorMessage("An error occurred while creating the booking.");
+    }
   }
 
   return (
@@ -102,6 +128,11 @@ export const OrderSummary = ({ selectedChips, selectedInstruments }:
           </Text>
         <Divider size={'sm'}/>
       </div>
+      {errorMessage && (
+        <Alert icon={<IconAlertCircle size={16} />} title="Error" color="red">
+          {errorMessage}
+        </Alert>
+      )}
       <form onSubmit={form.onSubmit((formValues) => createBooking(formValues))}>
         <div className={classes.email}>
           <TextInput

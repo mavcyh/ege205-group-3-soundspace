@@ -1,5 +1,6 @@
 import { Metadata } from "next";
 import classes from "./page.module.css";
+
 import { Title, Paper, Center, Stack, Text, Button, Group, Flex } from '@mantine/core';
 import DoorStatus from "./_components/DoorStatus/DoorStatus";
 
@@ -43,6 +44,7 @@ export default function AdminDashboard() {
           </Group>
         </Stack>
       </Center>
+      <Adminfetch/>
     </main>
   );
 }
