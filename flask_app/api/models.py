@@ -13,7 +13,7 @@ get_booking_start_datetime = nsApi.model("Get Start Datetime", {
 create_booking_model = nsApi.model("Create Booking", {
     "start_datetime": fields.String,
     "end_datetime": fields.String,
-    "lockers": fields.List(fields.String),
+    "locker_ids": fields.List(fields.String),
     "email": fields.String
 })
 

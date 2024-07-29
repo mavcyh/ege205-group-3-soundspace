@@ -1,7 +1,7 @@
 'use client'
 import { useState } from 'react';
-import { Center, Title, Flex, Container, Paper } from '@mantine/core';
-import { DatePicker, DatesProvider } from '@mantine/dates';
+import { Center, Flex, Paper } from '@mantine/core';
+import { DatePicker } from '@mantine/dates';
 import { InstrumentSelector } from '@/components/InstrumentSelector/InstrumentSelector';
 import { TimeslotSelector } from '../TimeslotSelector/TimeslotSelector';
 import { OrderSummary } from '../OrderSummary/OrderSummary';

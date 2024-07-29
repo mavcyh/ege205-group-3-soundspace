@@ -1,12 +1,7 @@
-import { Metadata } from "next";
 import React from 'react'
 import { Center, Paper, Title } from "@mantine/core"
 import { Passwordinput } from "./_components/Passwordinput/Passwordinput";
 import classes from "./page.module.css"
-
-export const metadata: Metadata = {
-    title: "SoundSpace | Admin Master Password",
-  };
 
 export default function AdminPassword() {
     return(

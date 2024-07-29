@@ -29,10 +29,10 @@ class api_create_booking(Resource):
     def post(self):
         start_datetime = nsApi.payload["start_datetime"]
         end_datetime = nsApi.payload["end_datetime"]
-        locker_ids = nsApi.payload["lockers"]
+        locker_ids = nsApi.payload["locker_ids"]
         email = nsApi.payload["email"]
         if not is_time_slot_available(start_datetime, end_datetime):
-            return {"message": "Timeslot is not available! Refresh the page."}, 400
+            return {"error_message": "Timeslot is not available! Refresh the page."}, 400
         
         temporary_password = str(random.randint(0, 999999)).zfill(6)
         create_booking(start_datetime, end_datetime, locker_ids, email, temporary_password)
@@ -45,7 +45,13 @@ class api_create_booking(Resource):
         
         start_datetime = convert_to_formatted_singapore_datetime(start_datetime)
         end_datetime = convert_to_formatted_singapore_datetime(end_datetime)
-        send_confirmation_booking_email(temporary_password, start_datetime, end_datetime, get_instrument_names_from_locker(locker_ids), email)
+        try:
+            send_confirmation_booking_email(temporary_password, start_datetime, end_datetime, get_instrument_names_from_locker(locker_ids), email)
+        except Exception as error:
+            print("Failed to send email.")
+            print(error)
+            return {"error_message": "Something went wrong when trying to send you the email. Please try again later."}, 400
+            
         
 #endregion BOOKING PAGE
 
