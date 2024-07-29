@@ -1,0 +1,26 @@
+.subheading {
+    font-weight: bold;
+    color: rgb(34, 139, 230);
+    font-size: 25px;
+    margin-bottom: 20px;
+}
+
+.instrumentname {
+    text-align: center;
+    font-size: 25px;
+    font-weight: bold;
+}
+
+.weardesc {
+    text-align: center;
+    font-size: 20px;
+    font-weight: 300;
+    padding-bottom: 20px;
+}   
+
+.wearvalue {
+    text-align: center;
+    font-size: 50px;
+    font-weight: bold;
+    padding-bottom: 50px;
+}

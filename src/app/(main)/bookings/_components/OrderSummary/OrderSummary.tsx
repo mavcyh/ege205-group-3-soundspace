@@ -1,10 +1,10 @@
 'use client'
 import { useForm } from "@mantine/form";
-import { Paper, Divider, Button, Text, Center, Title, List, TextInput, Alert, Flex } from "@mantine/core";
+import { Paper, Divider, Button, Text, List, TextInput, Alert, Flex } from "@mantine/core";
 import { IconCalendarClock, IconMail, IconAlertCircle } from "@tabler/icons-react";
 import classes from './OrderSummary.module.css';
-import { usePathname, useRouter, useSearchParams } from "next/navigation";
-import { useState, useEffect, useRef } from "react";
+import { usePathname, useRouter } from "next/navigation";
+import { useState } from "react";
 
 interface Instrument {
   locker_id: string,
@@ -15,21 +15,19 @@ interface Instrument {
 export const OrderSummary = ({ selectedChips, selectedInstruments }:
   { selectedChips: {startChip: Date | null, endChip: Date | null},
     selectedInstruments: Instrument[]}) => {
+  
+  const [errorMessage, setErrorMessage] = useState<string | null>(null);
+  const [createBookingLoading, setCreateBookingLoading] = useState<boolean>(false);
 
   const router = useRouter();
   const pathname = usePathname();
   
-  const [errorMessage, setErrorMessage] = useState<string | null>(null);
-
   const form = useForm({
     mode: 'uncontrolled',
     initialValues: { email: '' },
     validate: {
       email: value => {
-        if (/^\S+@\S+$/.test(value)) {
-          if (bookingEndDatetime != null) return null;
-          else return 'Select at least one timeslot'
-        } 
+        if (/^\S+@\S+$/.test(value)) return null;
         else return 'Invalid email'
       }
     }})
@@ -49,39 +47,39 @@ export const OrderSummary = ({ selectedChips, selectedInstruments }:
                                                   `${bookingEndDatetime.toLocaleDateString()}
                                                    ${bookingEndDatetime.toLocaleTimeString().slice(0, -3)}`                                             
   const totalInstrumentPerHour = selectedInstruments.reduce((total, selectedInstrument) => total + selectedInstrument.price_per_hour, 0);
-  const [dataB, setDataB] = useState<any>([]);
-  const latestDataRefB = useRef<any>(null);
   const bookingPerHour = 10;
   const bookingTotal = bookingHourCount * (bookingPerHour + totalInstrumentPerHour);
   
   const createBooking = async (formValues: {email: string}) => {
-    
-      try {
-        const response = await fetch("http://localhost:5000/api/create-booking", {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json"
-          },
-          body: JSON.stringify({
-              "start_datetime":  `${bookingStartDatetime?.toISOString()}`,
-              "end_datetime": `${bookingEndDatetime?.toISOString()}`,
-              "lockers": selectedInstruments.map(selectedInstrument => selectedInstrument.locker_id),
-              "email": `${formValues.email}`,
-            })  
-        });
-        if (!response.ok) {
-          const errorData = await response.json();
-          setErrorMessage(errorData.message || "An error occurred");
-          return;
-        }
-        const result = await response.json();
-        setDataB(result);
-         
-        latestDataRefB.current = result;
-        router.push(`${pathname}/status/success`);
+    if (bookingEndDatetime == null) {
+      setErrorMessage("Please select at least one timeslot.");
+      return;
+    }
+    setCreateBookingLoading(true);
+    try {
+      const response = await fetch("http://localhost:5000/api/create-booking", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json"
+        },
+        body: JSON.stringify({
+            "start_datetime":  `${bookingStartDatetime!.toISOString()}`,
+            "end_datetime": `${bookingEndDatetime!.toISOString()}`,
+            "locker_ids": selectedInstruments.map(selectedInstrument => selectedInstrument.locker_id),
+            "email": `${formValues.email}`,
+          })  
+      });
+      if (!response.ok) {
+        const errorData = await response.json();
+        setErrorMessage(errorData.error_message || "An unknown error occurred.");
+        setCreateBookingLoading(false);
+        return;
+      }
+      router.push(`${pathname}/status/success`);
     } catch (error) {
-        console.error("Error creating booking:", error);
+        console.error("Error creating booking.", error);
         setErrorMessage("An error occurred while creating the booking.");
+        setCreateBookingLoading(false);
     }
   }
 
@@ -129,7 +127,7 @@ export const OrderSummary = ({ selectedChips, selectedInstruments }:
         <Divider size={'sm'}/>
       </div>
       {errorMessage && (
-        <Alert icon={<IconAlertCircle size={16} />} title="Error" color="red">
+        <Alert icon={<IconAlertCircle size={16} />} title="ERROR" color="red">
           {errorMessage}
         </Alert>
       )}
@@ -148,7 +146,7 @@ export const OrderSummary = ({ selectedChips, selectedInstruments }:
           {...form.getInputProps('email')}
           />   
         </div>
-        <Button className={classes.submit} type="submit" color='blue'>Create Booking</Button>
+        <Button className={classes.submit} type="submit" color='blue' loading={createBookingLoading}>Create Booking</Button>
       </form>
     </Paper>
   )

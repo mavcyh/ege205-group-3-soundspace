@@ -1,0 +1,24 @@
+.subheading {
+    font-weight: bold;
+    color: rgb(34, 139, 230);
+    font-size: 25px;
+    margin-bottom: 20px;
+}
+
+.status {
+    text-align: left;
+    padding-left: 55px;
+    padding-top: 70px;
+}
+
+.graphheading {
+    text-align: center;
+    font-weight: bold;
+    color: black;
+    font-size: 25px;
+    margin-bottom: 20px;
+}
+
+.graphContainer {
+    margin-top: 50px;
+}   
