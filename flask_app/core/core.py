@@ -30,6 +30,13 @@ def check_session():
 def core_per_second():
     with app.app_context():
         update_instrument_wear_values()
+
+        TxData = {
+        "humidity_level": random.randint(0, 100), # generated humidity value
+        "motion_detected": False
+        }
+        bbbwMiscellanous_updateRoomState(TxData)
+
         event_time_stamp = datetime.now(timezone.utc).strftime('%Y-%m-%dT%H:%M')
         simulated_volume_level = random.randint(0, 30)
         data = {'volume_level': simulated_volume_level, 'time_stamp': event_time_stamp}

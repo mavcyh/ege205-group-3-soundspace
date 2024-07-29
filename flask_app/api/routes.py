@@ -65,6 +65,13 @@ class admin_current_session_volume_data(Resource):
         get_volume = get_volume_data_by_start_datetime(booking_start_datetime)
         return get_volume
 
+@nsAdmin.route("/humidity-data")
+class admin_humidity_data(Resource):
+    @nsApi.marshal_list_with(humidity_model)
+    def get(self):
+        return get_humidity_data()
+
+
 @nsAdmin.route("/change-master-password")
 class update_master_password(Resource):
     @nsApi.expect(master_password_model)

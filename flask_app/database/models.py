@@ -42,6 +42,12 @@ class Events(db.Model):
     event_names = db.Column(db.String, nullable=False)
     severity = db.Column(db.Integer, nullable=False)
     
+
+class Humidity(db.Model):
+    id = db.Column(db.Integer, primary_key=True, nullable=False)
+    time_stamp = db.Column(db.String, nullable=False)
+    humidity = db.Column(db.Integer, nullable=False)
+
 # Create a new table for the different events (Make use of get_session_active to check for the events)
 # table events (Columns: id as primary key(Auto increment), timestamp where it happended, name of events, severity of offence)
 # table events contains (Current datetime (id), item dropped, someone in room when session is not active
