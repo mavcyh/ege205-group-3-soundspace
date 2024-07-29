@@ -1,7 +1,7 @@
 from flask import json
 from flask_app import app, db
-from flask_app.database.models import Booking, Instrument, Volume, Events, booking_instrument
-from datetime import datetime, timezone
+from flask_app.database.models import Booking, Instrument, Volume, Events, Humidity, booking_instrument
+from datetime import datetime, timezone, timedelta
 from decimal import Decimal
 import random
 
@@ -229,11 +229,11 @@ def get_booking_availability_and_instruments():
 
 def insert_instrument_data():
     data = [
-        ("1", "Fender Stratocaster", "F Strat", 21.90, 2.50),
-        ("2", "Ibanez SR300E", "Ib SR300E", 11.90, 1.50)
+        ("1", "Fender Stratocaster", 21.90, 2.50),
+        ("2", "Ibanez SR300E", 11.90, 1.50)
     ]
     
-    for locker_id, instrument_name, name_abbr, wear_value, price in data:
+    for locker_id, instrument_name, wear_value, price in data:
         new_instrument = Instrument(
             locker_id=locker_id,
             instrument_name=instrument_name,
@@ -242,6 +242,40 @@ def insert_instrument_data():
         )
         db.session.add(new_instrument)
     db.session.commit()
+
+
+def insert_humidity_data(humidity_value):
+    current_time_utc = datetime.now(timezone.utc).strftime('%Y-%m-%dT%H:%M') 
+    time_stamp = format_time(current_time_utc)
+    new_humidity = Humidity(time_stamp=time_stamp, humidity=humidity_value)
+    db.session.add(new_humidity)
+    db.session.commit()
+
+def get_humidity_data():    
+    # Get the current UTC time and calculate the time two hours ago
+    now = datetime.now(timezone.utc)
+    two_hours_ago = now - timedelta(hours=2)
+
+    # Fetch all humidity data from the database
+    all_data = Humidity.query.all()
+
+    filtered_data = []
+
+    for record in all_data:
+        # Extract the record's time_stamp
+        record_time_str = record.time_stamp
+
+        # Convert record's time_stamp to a datetime object for comparison
+        # Assuming the record's date is today's date
+        record_time = datetime.combine(now.date(), datetime.strptime(record_time_str, '%H:%M').time(), tzinfo=timezone.utc)
+
+        # Compare the record's datetime with the time two hours ago
+        if record_time >= two_hours_ago:
+            filtered_data.append({
+                'time_stamp': record.time_stamp,
+                'humidity_data': record.humidity
+            })
+    return filtered_data
 
 
 def reset_wear_value(locker_id):
@@ -334,3 +368,4 @@ def coded_booking():
     
     # Use the create_booking function to insert the booking
     create_booking(start_datetime, end_datetime, locker_ids, email, temporary_password)
+

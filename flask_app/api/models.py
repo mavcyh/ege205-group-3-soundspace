@@ -6,6 +6,11 @@ volume_model = nsApi.model("Volume", {
     "volume_data": fields.Integer
 })
 
+humidity_model = nsApi.model("Humidity", {
+    "time_stamp": fields.String,
+    "humidity_data": fields.Integer
+})
+
 get_booking_start_datetime = nsApi.model("Get Start Datetime", {
     "start_datetime" : fields.List(fields.String)
 })

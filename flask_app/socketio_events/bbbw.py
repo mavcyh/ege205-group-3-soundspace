@@ -1,6 +1,6 @@
 from flask import request
 from flask_app import socketio
-from flask_app.database.crud import write_volume_level_data, update_event
+from flask_app.database.crud import write_volume_level_data, update_event,insert_humidity_data
 
 #region SOCKETIO EVENTS
 
@@ -39,15 +39,16 @@ def bbbwSessionInfo_updateVolumeLevel(data):
 def bbbwMiscellanous_updateRoomState(data):
     print(f"Humidity Level: {data["humidity_level"]}%")
     print("Motion Detected" if data["motion_detected"] else "Motion Not Detected")
-    event = "motion"
-    if data["motion_detected"]:
+    insert_humidity_data(data["humidity_level"])
+    if data["motion_detected"] == True:
+        event = "motion"
         update_event(event)
+
 
 @socketio.event
 def bbbwMiscellanous_deviceDropped():
     event = "dropped"
     update_event(event)
-    print("DEVICE DROPPED!")
 
 #endregion bbbwMiscellanous
 

@@ -4,9 +4,15 @@ from flask_app import nsApi, nsAdmin
 from flask_app import socketio
 from flask_app.database.crud import *
 from .models import *
+from flask_app.database.crud import *
+from .models import *
 from flask_app.socketio_events.bbbw import change_master_password
 from flask_app.core.mailer import send_confirmation_booking_email
+from flask_app.core.mailer import send_confirmation_booking_email
 import random
+from datetime import datetime
+import pytz
+
 from datetime import datetime
 import pytz
 
@@ -70,6 +76,13 @@ class admin_current_session_volume_data(Resource):
         
         get_volume = get_volume_data_by_start_datetime(booking_start_datetime)
         return get_volume
+
+@nsAdmin.route("/humidity-data")
+class admin_humidity_data(Resource):
+    @nsApi.marshal_list_with(humidity_model)
+    def get(self):
+        return get_humidity_data()
+
 
 @nsAdmin.route("/change-master-password")
 class update_master_password(Resource):
