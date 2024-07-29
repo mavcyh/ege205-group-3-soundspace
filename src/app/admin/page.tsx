@@ -1,28 +1,32 @@
 import { Metadata } from "next";
 import classes from "./page.module.css";
-import { Adminfetch } from "./_components/adminfetch";
-import { Title, Paper, Center, Stack, Text, Button, Group } from '@mantine/core';
+
+import { Title, Paper, Center, Stack, Text, Button, Group, Flex } from '@mantine/core';
+import DoorStatus from "./_components/DoorStatus/DoorStatus";
 
 export const metadata: Metadata = {
   title: "SoundSpace | Dashboard",
 };
 
-export default function AdminDashboard() {
+export default function AdminDashboard() { 
   return (
     <main>
       <Center>
         <Title my={50}>Admin Dashboard</Title>
       </Center>
       <Center>
-        <Stack m="xl" style={{ width: '100%', maxWidth: 1200 }}>
-          <Group grow align="stretch">
-            <Paper withBorder shadow="xl" p="lg">
+        <Stack mb={50} style={{ width: '100%', maxWidth: 1200 }}>
+          <Paper withBorder shadow="xl" p="lg">
+            <Flex justify="space-between">
               <Text className={classes.subheading}>Room Status</Text>
-              <Stack className={classes.status}>
-                <Text className={classes.statustxt}><span style={{fontWeight: 'bold'}}>Humidity Level: </span>60%</Text>
-                <Text className={classes.statustxt}><span style={{fontWeight: 'bold'}}>Door Status: </span>Closed</Text>
-              </Stack>
-            </Paper>
+              <DoorStatus/>
+            </Flex>
+            <Stack className={classes.graphContainer}>
+              <Text className={classes.graphheading}>Humidity Graph</Text>
+              <Text className={classes.graphheading}>Volume Graph</Text>
+            </Stack>     
+          </Paper>
+          <Group grow align="stretch">
             <Paper withBorder shadow="xl" p="lg">
               <Text className={classes.subheading}>Locker 1</Text>
               <Text className={classes.instrumentname}>Fender Stratocaster</Text>
@@ -38,9 +42,6 @@ export default function AdminDashboard() {
               <Button fullWidth>Reset</Button>
             </Paper>
           </Group>
-          <Paper withBorder shadow="xl" p="lg" className={classes.fullWidthPaper}>
-            <Text className={classes.subheading}>Volume Graph</Text>
-          </Paper>
         </Stack>
       </Center>
       <Adminfetch/>
