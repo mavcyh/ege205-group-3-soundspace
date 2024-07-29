@@ -37,6 +37,8 @@ export function Adminfetch() {
   const [dataE, setDataE] = useState<any>([]);
   const latestDataRefE = useRef<any>(null);
 
+const [dataH, setDataH] = useState<any>([]); //humidity data
+const latestDataRefH = useRef<any>(null);
 
 
   const handleReset = async () => {
@@ -82,7 +84,28 @@ export function Adminfetch() {
         console.error("Error fetching data:", error);
       }
     };
-  
+
+    const fetchHumidityData = async () => {
+      try {
+        const response = await fetch("http://localhost:5000/admin/humidity-data", {
+          method: "GET",
+          headers: {
+            "Content-Type": "application/json",
+          },
+        });
+
+        if (!response.ok) {
+          throw new Error("Network response was not ok");
+        }
+
+        const result = await response.json();
+        setDataH(result);  // Assuming setDataH is a state setter for humidity data
+        latestDataRefH.current = result;
+      } catch (error) {
+        console.error("Error fetching humidity data:", error);
+      }
+    };
+
 
     const fetchDataW = async () => {
       try {
@@ -105,10 +128,12 @@ export function Adminfetch() {
 
     fetchData();
     fetchDataW();
+    fetchHumidityData();
 
     const interval = setInterval(() => {
       fetchData();
       fetchDataW();
+      fetchHumidityData();
     }, 50);
 
     return () => {
@@ -148,31 +173,68 @@ export function Adminfetch() {
           fz={rem(50)}
           ml={250}
         >
-          Sound graph:
+          Volume Data Graph:
         </Text>
-          <AreaChart
-            h={350}
-            w={900}
-            data={data}
-            dataKey="time_stamp"
-            tickLine="xy"
-            gridAxis="xy"
-            series={[
-              { name: "volume_data", color: "green.6" },
-              {
-                name: "volume_limit",
-                color: "grape.5",
-                strokeDasharray: "3 5",
-              },
-            ]}
-            curveType="monotone"
-            connectNulls
-            tooltipAnimationDuration={100}
-            strokeDasharray="5 25"
-            fillOpacity={0.5}
-            xAxisLabel="Date"
-            yAxisLabel="Volume"
-          />
+        <AreaChart
+          h={350}
+          w={900}
+          data={data}
+          dataKey="time_stamp"
+          tickLine="xy"
+          gridAxis="xy"
+          series={[
+            { name: "volume_data", color: "green.6" },
+            {
+              name: "volume_limit",
+              color: "grape.5",
+              strokeDasharray: "3 5",
+            }
+          ]}
+          curveType="monotone"
+          connectNulls
+          tooltipAnimationDuration={100}
+          strokeDasharray="5 25"
+          fillOpacity={0.5}
+          xAxisLabel="Date"
+          yAxisLabel="Volume"
+        />
+      </Paper>
+
+      <Paper
+        p="md"
+        shadow="sm"
+        withBorder
+        mt={24}
+        radius="md"
+        className={classes.gradBorder}
+      >
+        <Text
+          fw={900}
+          variant="gradient"
+          gradient={{ from: "blue", to: "green", deg: 180 }}
+          fz={rem(50)}
+          ml={150}
+        >
+          Humidity Graph:
+        </Text>
+        <AreaChart
+          h={350}
+          w={900}
+          data={dataH}
+          dataKey="time_stamp"
+          tickLine="xy"
+          gridAxis="xy"
+          series={[
+            { name: "humidity_data", color: "blue.6" }
+          ]}
+          curveType="monotone"
+          connectNulls
+          tooltipAnimationDuration={100}
+          strokeDasharray="5 25"
+          fillOpacity={0.5}
+          xAxisLabel="Date"
+          yAxisLabel="Humidity (%)"
+        />
       </Paper>
 
       <Paper
@@ -197,17 +259,17 @@ export function Adminfetch() {
             size="xl"
             fw={900}
             variant="gradient"
-            gradient={{ from: "blue", to: "cyan", deg:90 }}>
-                
-                Latest F Strat Value:{dataW && dataW.wear_value && dataW.wear_value.length > 1 ? JSON.stringify(dataW.wear_value[0]) : <Loader size={20} color="lime" />}
+            gradient={{ from: "blue", to: "cyan", deg: 90 }}
+          >
+            Latest F Strat Value: {dataW && dataW.wear_value && dataW.wear_value.length > 1 ? JSON.stringify(dataW.wear_value[0]) : <Loader size={20} color="lime" />}
           </Text>
           <Text
             size="xl"
             fw={900}
             variant="gradient"
-            gradient={{ from: "blue", to: "cyan", deg:90 }}>
-                
-                Latest Event Value:{dataE}
+            gradient={{ from: "blue", to: "cyan", deg: 90 }}
+          >
+            Latest Event Value: {dataE}
           </Text>
           <Button
             variant="gradient"
@@ -217,7 +279,6 @@ export function Adminfetch() {
           >
             Reset
           </Button>
-
         </Group>
       </Paper>
     </div>
