@@ -13,15 +13,9 @@ import random
 from datetime import datetime
 import pytz
 
-from datetime import datetime
-import pytz
 
 #region BOOKING PAGE
 
-# Return an array of all the bookings with a start time beyond the current datetime.
-# Function: Blocking out the timeslots on the website.
-# AND return an array of all the instruments lockers.
-# Function: Selection of the instrument (in reality, locker) to book on the website.
 @nsApi.route("/booking-and-locker-info")
 class api_booking_and_locker_info(Resource):
     @nsApi.marshal_list_with(booking_availability_model)
@@ -64,25 +58,19 @@ class api_create_booking(Resource):
 
 #region ADMIN PAGE
 
-# Return an array of all the volume data
-@nsAdmin.route("/current-session-volume-data")
-class admin_current_session_volume_data(Resource):
-    @nsApi.expect(get_booking_start_datetime)
-    @nsApi.marshal_with(volume_model)
-    def post(self):
-        booking_start_datetime = nsApi.payload["start_datetime"]
-        if booking_start_datetime == "  ":
-            return get_volume_data_by_start_datetime(booking_start_datetime)
-        
-        get_volume = get_volume_data_by_start_datetime(booking_start_datetime)
-        return get_volume
-
 @nsAdmin.route("/humidity-data")
 class admin_humidity_data(Resource):
     @nsApi.marshal_list_with(humidity_model)
     def get(self):
         return get_humidity_data()
 
+@nsAdmin.route("/session-volume-data")
+class admin_session_volume_data(Resource):
+    @nsApi.expect(get_booking_start_datetime)
+    @nsApi.marshal_list_with(volume_model)
+    def post(self):
+        booking_start_datetime = nsApi.payload["start_datetime"]       
+        return get_volume_data_by_start_datetime(booking_start_datetime)
 
 @nsAdmin.route("/change-master-password")
 class update_master_password(Resource):
@@ -126,41 +114,12 @@ class admin_reset_locker_wear(Resource):
 class admin_change_master_password(Resource):
     @nsAdmin.expect(change_master_password_model)
     def post(self):
-        current_master_password = nsApi.payload["current_master_password"]
         new_master_password = nsApi.payload["new_master_password"]
-        print(f"Current master password: {current_master_password}\nNew master password: {new_master_password}")
+        print(f"New master password: {new_master_password}")
+        TxData = {
+            "new_master_password": new_master_password
+        }
+        socketio.emit("serverToRoomDoor_updateMasterPassword", TxData)
 
 
 #endregion ADMIN PAGE
-
-
-#region TEST
-
-@nsApi.route("/test/start-session")
-class route_start_session(Resource):
-    def post(self):
-        TxData = {
-                "session_duration_left": 30,
-                "maximum_volume_level": 10
-        }
-        socketio.emit("serverToSessionInfo_connected", TxData)
-        
-@nsApi.route("/test/end-session")
-class route_end_session(Resource):
-    def post(self):
-        TxData = {
-                "session_duration_left": 0,
-                "maximum_volume_level": 10
-        }
-        socketio.emit("serverToSessionInfo_connected", TxData)
-
-@nsApi.route("/test/change-door-password")
-class route_change_door_password(Resource):
-    def post(self):
-        TxData = {
-            "master_password": "111111",
-            "temporary_password": "123412"
-        }
-        socketio.emit("serverToRoomDoor_updatePasswords", TxData)
-
-#endregion TEST

@@ -17,9 +17,7 @@ def check_session():
             current_time = datetime.now(timezone.utc)
             if current_time < end_datetime:
                 session_active = True
-                remaining_time_seconds = (end_datetime - current_time).total_seconds()
-                remaining_time_seconds = int(remaining_time_seconds)
-                print(f"Remaning time (seconds): {remaining_time_seconds}")
+                remaining_time_seconds = int((end_datetime - current_time).total_seconds())
                 print(f"Remaning time (seconds): {remaining_time_seconds}")
             else:
                 session_active = False
@@ -27,16 +25,15 @@ def check_session():
             session_active = False
         
         print(f"Session active: {session_active}")
-        print(f"Session active: {session_active}")
 
 def core_per_second():
     with app.app_context():
-        update_instrument_wear_values()
-
+        global simulated_humidity_level
+        update_instrument_wear_values()       
         TxData = {
-        "humidity_level": random.randint(0, 100), # generated humidity value
-        "motion_detected": False
-        }
+            "humidity_level": random.randint(50, 60),
+            "motion_detected": False
+        }   
         bbbwMiscellanous_updateRoomState(TxData)
 
         event_time_stamp = datetime.now(timezone.utc).strftime('%Y-%m-%dT%H:%M')
@@ -53,5 +50,4 @@ scheduler.add_job(core_per_second, 'cron', second='*')
 
 scheduler.start()
 
-# check_session()
 # check_session()

@@ -8,7 +8,7 @@ export const Navbar = () => {
     <>
       <Box className={classes.Navbar}>
         <Flex justify='space-between'>
-          <Image component={NextImage} src={logo} alt='logo' className={classes.logo}/>
+          <Image priority component={NextImage} src={logo} alt='logo' className={classes.logo}/>
           <Group className={classes.buttonsgroup}>
             <Button className={classes.buttons} component='a' href='/admin'>Dashboard</Button>
             <Button className={classes.buttons} component='a' href='/admin/booking'>Custom Booking</Button>

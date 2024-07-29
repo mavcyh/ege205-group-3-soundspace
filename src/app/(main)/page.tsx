@@ -14,7 +14,7 @@ export const metadata: Metadata = {
 
 export default function Home() {
   return (
-    <main> 
+    <>
       <Hero/>
       <Flex  justify="center">
         <Image component={NextImage} src={logo} alt="logo" className={classes.image}/>
@@ -35,6 +35,6 @@ export default function Home() {
           <BadgeCard3/>
         </Group>
       </Flex>
-    </main>
+    </>
   );
 }

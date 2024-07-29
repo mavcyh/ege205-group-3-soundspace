@@ -77,69 +77,67 @@ export const AdminBooking = ({instrumentData}: {instrumentData: Instrument[]}) =
 
 
     return (
-        <>
-        <Center>
-            <Paper withBorder shadow="md" radius="md" className={classes.paper}>
-                <Stack>
-                  <Group className={classes.datetimepicker}>
-                    <DateTimePicker
-                      onChange={(datetimeValue) =>
-                        setSelectedBookingDatetimes({...selectedBookingDatetimes, bookingStartDatetime: datetimeValue})}
-                      value={selectedBookingDatetimes.bookingStartDatetime}
-                      withAsterisk
-                      label="Start Datetime"
-                      placeholder="Enter datetime"
+      <Center>
+          <Paper withBorder shadow="md" radius="md" className={classes.paper}>
+              <Stack>
+                <Group className={classes.datetimepicker}>
+                  <DateTimePicker
+                    onChange={(datetimeValue) =>
+                      setSelectedBookingDatetimes({...selectedBookingDatetimes, bookingStartDatetime: datetimeValue})}
+                    value={selectedBookingDatetimes.bookingStartDatetime}
+                    withAsterisk
+                    label="Start Datetime"
+                    placeholder="Enter datetime"
+                    required
+                    size='lg'
+                    w={600}
+                    mb={20}
+                  />
+                  <DateTimePicker
+                    onChange={(datetimeValue) =>
+                      setSelectedBookingDatetimes({...selectedBookingDatetimes, bookingEndDatetime: datetimeValue})}
+                    value={selectedBookingDatetimes.bookingEndDatetime}
+                    withAsterisk
+                    label="Enter Datetime"
+                    placeholder="Enter datetime"
+                    required
+                    size='lg'
+                    w={600}
+                    mb={20}
+                  />
+                </Group>
+                <div className={classes.instrumentSelector}>
+                  <InstrumentSelector
+                    instrumentData={instrumentData}
+                    selectedInstruments={selectedInstruments}
+                    onSelectedInstrumentsChange={handleSelectedInstrumentsChange}
+                  />
+                </div>
+                <div>
+                  <form onSubmit={form.onSubmit((formValues) => createBooking(formValues))}>
+                    <TextInput
+                      size='md'
+                      label='Email'
+                      description='Booking details will be sent to this email.'
+                      leftSectionPointerEvents="none"
+                      leftSection={<IconMail />}
+                      placeholder="you@example.com"
                       required
-                      size='lg'
-                      w={600}
-                      mb={20}
+                      pb={30}
+                      {...form.getInputProps('email')}
                     />
-                    <DateTimePicker
-                      onChange={(datetimeValue) =>
-                        setSelectedBookingDatetimes({...selectedBookingDatetimes, bookingEndDatetime: datetimeValue})}
-                      value={selectedBookingDatetimes.bookingEndDatetime}
-                      withAsterisk
-                      label="Enter Datetime"
-                      placeholder="Enter datetime"
-                      required
-                      size='lg'
-                      w={600}
-                      mb={20}
-                    />
-                  </Group>
-                  <div className={classes.instrumentSelector}>
-                    <InstrumentSelector
-                      instrumentData={instrumentData}
-                      selectedInstruments={selectedInstruments}
-                      onSelectedInstrumentsChange={handleSelectedInstrumentsChange}
-                    />
-                  </div>
-                  <div>
-                    <form onSubmit={form.onSubmit((formValues) => createBooking(formValues))}>
-                      <TextInput
-                        size='md'
-                        label='Email'
-                        description='Booking details will be sent to this email.'
-                        leftSectionPointerEvents="none"
-                        leftSection={<IconMail />}
-                        placeholder="you@example.com"
-                        required
-                        pb={30}
-                        {...form.getInputProps('email')}
-                      />
-                        {errorMessage && (
-                          <Alert icon={<IconAlertCircle size={16} />} title="ERROR" color="red">
-                            {errorMessage}
-                          </Alert>
-                        )}
-                      <Flex justify={'flex-end'}>
-                        <Button className={classes.submit} type="submit" color='blue' loading={createBookingLoading}>Create Booking</Button>
-                      </Flex>
-                    </form>
-                  </div>
-                </Stack>
-            </Paper>
-        </Center>  
-    </>  
+                      {errorMessage && (
+                        <Alert icon={<IconAlertCircle size={16} />} title="ERROR" color="red">
+                          {errorMessage}
+                        </Alert>
+                      )}
+                    <Flex justify={'flex-end'}>
+                      <Button className={classes.submit} type="submit" color='blue' loading={createBookingLoading}>Create Booking</Button>
+                    </Flex>
+                  </form>
+                </div>
+              </Stack>
+          </Paper>
+      </Center>
     )
 }
