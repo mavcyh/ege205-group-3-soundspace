@@ -2,20 +2,45 @@ import { Metadata } from 'next';
 import { Center, Title } from '@mantine/core';
 import { Booking } from './_components/Booking/Booking';
 
+
 export const metadata: Metadata = {
   title: 'SoundSpace | Bookings',
 };
 
-const currentBookings = [
-  {start_datetime: new Date(2024, 6, 26, 12, 0), end_datetime: new Date(2024, 6, 26, 14, 0)},
-  {start_datetime: new Date(2024, 6, 26, 18, 0), end_datetime: new Date(2024, 6, 26, 19, 0)},
-]
 
-const instrumentData: {locker_id: string, instrument_name: string, price_per_hour: number}[] =
-[{locker_id: '1', instrument_name: 'Fender Stratocaster', price_per_hour: 2.50},
- {locker_id: '2', instrument_name: 'Ibanez SR300E', price_per_hour: 1.50}]
+async function fetchBookingAndLockerInfo() {
+  try {
+    const response = await fetch("http://localhost:5000/api/booking-and-locker-info",
+      {
+      method: "GET",
+      headers: { "Content-Type": "application/json" },
+      cache: 'no-store'
+      })
+    if (!response.ok) {
+      throw new Error(`HTTP error! status: ${response.status}`);
+    }
+    const bookingAndLockerInfo: {
+      current_bookings: { start_datetime: string, end_datetime: string }[],
+      instrument_data: { locker_id: string, instrument_name: string, price_per_hour: number }[]
+    } = await response.json();
+    
+    return bookingAndLockerInfo;
+  }
+  catch {
+    console.log("Failed to connect to the Flask API '/api/booking-and-locker-info'")
+    return { current_bookings: [], instrument_data: [] }
+  }
 
-export default function Bookings() {
+};
+
+export default async function Bookings() {
+  const bookingAndLockerInfo = await fetchBookingAndLockerInfo();
+  let currentBookings: { start_datetime: Date, end_datetime: Date }[] = []
+  bookingAndLockerInfo.current_bookings.forEach((current_booking) =>
+    currentBookings.push({ start_datetime: new Date(current_booking.start_datetime), end_datetime: new Date(current_booking.end_datetime)}
+  ))
+  const instrumentData = bookingAndLockerInfo.instrument_data;
+
   return (
       <>
         <Center>

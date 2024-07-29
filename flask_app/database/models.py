@@ -21,15 +21,14 @@ class Booking(db.Model):
     locker_numbers = db.relationship('Instrument', secondary=booking_instrument,
         backref=db.backref('bookings'))
     email = db.Column(db.String, nullable=False)
-    device_dropped = db.Column(db.Boolean, default=False)     
+    temporary_password = db.Column(db.String(6), nullable=False)  
+    device_dropped = db.Column(db.Boolean, default=False)  
 
-# TODO method to dynamically change "wear" of instruments e.g. 60% after 100 hours of active use + 3 months passive deterioration
-class Instrument(db.Model): #Change this class to Locker
+class Instrument(db.Model): # Change this class to Locker
     locker_id = db.Column(db.String, primary_key=True, nullable=False)
-    instrument_name = db.Column(db.String(255), nullable=False)
-    name_abbr = db.Column(db.String(15), nullable=False)
+    instrument_name = db.Column(db.String(15), nullable=False)
     wear_value = db.Column(Numeric(precision=10, scale=2), nullable=False)
-    price = db.Column(Numeric(precision=10, scale=2), nullable=False)  
+    price = db.Column(Numeric(precision=10, scale=2), nullable=False)
 
 class Volume(db.Model):
     id = db.Column(db.Integer, primary_key=True, nullable=False)
@@ -46,4 +45,4 @@ class Events(db.Model):
 # Create a new table for the different events (Make use of get_session_active to check for the events)
 # table events (Columns: id as primary key(Auto increment), timestamp where it happended, name of events, severity of offence)
 # table events contains (Current datetime (id), item dropped, someone in room when session is not active
-# someone tries to break into the locker, which locker? - check all events from bbbw)
+# someone tries to break into the locker, which locker? - check all events from bbbw)   

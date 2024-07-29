@@ -30,6 +30,10 @@ change_master_password_model = nsAdmin.model("Change Master Password", {
     "new_master_password": fields.String
 })
 
+master_password_model = nsAdmin.model("Update master password", {
+    "master_password": fields.String                                      
+})
+
 
 instrument_data_model = nsApi.model("InstrumentData", {
     "locker_id": fields.String,

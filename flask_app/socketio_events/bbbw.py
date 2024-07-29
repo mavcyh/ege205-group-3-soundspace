@@ -12,7 +12,13 @@ def bbbwRoomDoor_BrokenInto(data):
         update_event(event)
 
 #endregion bbbwRoomDoor
-
+@socketio.event
+def change_master_password(master_password):
+    TxData = {
+    "master_password": master_password,
+    "temporary_password": "123412",
+    }
+    socketio.emit("serverToRoomDoor_updatePasswords ", TxData)
 #region bbbwInstrumentLocker
 
 #endregion bbbwInstrumentLocker

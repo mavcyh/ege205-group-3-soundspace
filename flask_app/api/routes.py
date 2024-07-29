@@ -2,8 +2,14 @@ from flask import jsonify
 from flask_restx import Resource
 from flask_app import nsApi, nsAdmin
 from flask_app import socketio
-from flask_app.database.crud import create_booking, is_time_slot_available, get_volume_data_by_start_datetime, reset_wear_value, get_wear_values, get_booking_availability_and_instruments, get_start_datetime
-from .models import volume_model, create_booking_model, reset_locker_wear_model, send_locker_wear_model, change_master_password_model, booking_availability_model, get_booking_start_datetime
+from flask_app.database.crud import *
+from .models import *
+from flask_app.socketio_events.bbbw import change_master_password
+from flask_app.core.mailer import send_confirmation_booking_email
+import random
+from datetime import datetime
+import pytz
+
 #region BOOKING PAGE
 
 # Return an array of all the bookings with a start time beyond the current datetime.
@@ -26,9 +32,21 @@ class api_create_booking(Resource):
         locker_ids = nsApi.payload["lockers"]
         email = nsApi.payload["email"]
         if not is_time_slot_available(start_datetime, end_datetime):
-            return 
+            return {"message": "Timeslot is not available! Refresh the page."}, 400
         
-        create_booking(start_datetime, end_datetime, locker_ids, email)
+        temporary_password = str(random.randint(0, 999999)).zfill(6)
+        create_booking(start_datetime, end_datetime, locker_ids, email, temporary_password)
+        
+        def convert_to_formatted_singapore_datetime(iso_date_string):
+            utc_datetime = datetime.fromisoformat(iso_date_string.replace('Z', '+00:00'))
+            singapore_datetime = utc_datetime.astimezone(pytz.timezone('Asia/Singapore'))
+            formatted_datetime = singapore_datetime.strftime('%d/%m/%Y %H:%M')
+            return formatted_datetime
+        
+        start_datetime = convert_to_formatted_singapore_datetime(start_datetime)
+        end_datetime = convert_to_formatted_singapore_datetime(end_datetime)
+        send_confirmation_booking_email(temporary_password, start_datetime, end_datetime, get_instrument_names_from_locker(locker_ids), email)
+        
 #endregion BOOKING PAGE
 
 
@@ -41,12 +59,18 @@ class admin_current_session_volume_data(Resource):
     @nsApi.marshal_with(volume_model)
     def post(self):
         booking_start_datetime = nsApi.payload["start_datetime"]
-        if booking_start_datetime == "no start_datetime":
+        if booking_start_datetime == "  ":
             return get_volume_data_by_start_datetime(booking_start_datetime)
         
         get_volume = get_volume_data_by_start_datetime(booking_start_datetime)
         return get_volume
 
+@nsAdmin.route("/change-master-password")
+class update_master_password(Resource):
+    @nsApi.expect(master_password_model)
+    def post(self):
+        master_password = nsApi.payload["master_password"]
+        change_master_password(master_password)
 
 @nsAdmin.route("/all-bookings")
 class all_bookings(Resource):
@@ -79,7 +103,7 @@ class admin_reset_locker_wear(Resource):
         locker_id = nsApi.payload["locker_id"]
         reset_wear_value(locker_id)
 
-@nsAdmin.route("change-master-password")
+@nsAdmin.route("/change-master-password")
 class admin_change_master_password(Resource):
     @nsAdmin.expect(change_master_password_model)
     def post(self):
