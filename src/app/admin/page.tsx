@@ -7,17 +7,14 @@ export const metadata: Metadata = {
   title: "SoundSpace | Dashboard",
 };
 
-export default function AdminDashboard() {
-
-  
-
+export default function AdminDashboard() { 
   return (
     <main>
       <Center>
         <Title my={50}>Admin Dashboard</Title>
       </Center>
       <Center>
-        <Stack m="xl" style={{ width: '100%', maxWidth: 1200 }}>
+        <Stack mb={50} style={{ width: '100%', maxWidth: 1200 }}>
           <Paper withBorder shadow="xl" p="lg">
             <Flex justify="space-between">
               <Text className={classes.subheading}>Room Status</Text>
