@@ -4,7 +4,8 @@ from flask_app.database.crud import write_volume_level_data, update_event, inser
 
 roomData = {
     "room_door_status": 'CLOSED',
-    "instrument_data": "",
+    "instrument_data": [{'locker_id': '1', 'instrument_name': 'Fender Stratocaster', 'wear_value': 50, 'price_per_hour': 2.5, 'usage': False},
+                      {'locker_id': '2', 'instrument_name': 'Ibanez SR300E', 'wear_value': 70, 'price_per_hour': 1.5, 'usage': False}],
     "loitering_detected": False, 
     "item_dropped": False
 }
