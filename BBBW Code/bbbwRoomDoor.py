@@ -227,9 +227,12 @@ def door_locking_timer(seconds=5):
 # SOCKETIO EVENTS
 
 @sio.event
-def serverToRoomDoor_updatePasswords(data):
-    database["master_password"] = data["master_password"]
+def serverToRoomDoor_updateTemporaryPassword(data):
     database["temporary_password"] = data["temporary_password"]
+
+@sio.event
+def serverToRoomDoor_updateMasterPassword(data):
+    database["master_password"] = data["master_password"]
 
 
 # MAIN LOGIC

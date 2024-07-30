@@ -87,45 +87,11 @@ def delete_specific_booking():
     else:
         print("No booking found with the specified start_datetime.")
 
-def get_current_session_volume_data():
-    start_datetime, end_datetime = get_session_active()
-    if start_datetime and end_datetime:
-        start_datetime_obj = format_datetime(start_datetime)
-        end_datetime_obj = format_datetime(end_datetime)
-        
-        current_session_volumes = Volume.query.filter(
-            (Volume.time_stamp >= start_datetime_obj) &
-            (Volume.time_stamp <= end_datetime_obj)
-        ).all()
-        
-        # Adjust each volume's time_stamp to display only the time
-        adjusted_volumes = []
-        for volume in current_session_volumes:
-            volume_dict = {
-                'id': volume.id,
-                'time_stamp': format_time(volume.time_stamp),
-                'volume_limit': volume.volume_limit,
-                'volume_data': volume.volume_data
-            }
-            adjusted_volumes.append(volume_dict)
-        
-        return adjusted_volumes
-    else:
-        return "No active session"
-
 def get_volume_data_by_start_datetime(start_datetime):
-
     if start_datetime == "":
         start_datetime_obj, end_datetime_obj = get_session_active()
         if not start_datetime_obj or not end_datetime_obj:
-            volume_data_list = []
-            volume_dict = {
-                'time_stamp': "0",
-                'volume_limit': "0",
-                'volume_data': "0"
-            }
-            volume_data_list.append(volume_dict)
-            return volume_data_list
+            return []
 
     else:
         start_datetime_obj = format_datetime(start_datetime)
@@ -309,12 +275,13 @@ def update_instrument_wear_values():
             if instrument:
                 instrument.wear_value += Decimal(0.5)  # Increase wear value by 0.5 for in-use instruments
                 db.session.commit()
+                print(f"Instrument wear value: {instrument.wear_value}")
 
     else:
         # If no active session, update wear value for all instruments
         all_instruments = Instrument.query.all()
         for instrument in all_instruments:
-            instrument.wear_value += Decimal('0.1')   # Increase wear value by 0.1 for non-active instruments
+            instrument.wear_value += Decimal(0.1)   # Increase wear value by 0.1 for non-active instruments
             db.session.commit()
 
 def update_event(event):
