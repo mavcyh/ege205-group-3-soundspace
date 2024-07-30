@@ -1,33 +1,21 @@
 "use client";
 import {
-  Title,
   Button,
   Text,
   Paper,
-  Flex,
-  Grid,
-  Table,
   rem,
-  ScrollArea,
   Group,
-  Stack,
-  Divider,
-  Modal,
-  Alert,
   Loader,
 } from "@mantine/core";
-import { IconInfoCircle, IconAlertCircle } from "@tabler/icons-react";
+import { IconAlertCircle } from "@tabler/icons-react";
 import classes from '../page.module.css'
 import { LineChart, AreaChart, BarChart } from "@mantine/charts";
-import { notifications } from "@mantine/notifications";
-import { useFullscreen } from "@mantine/hooks";
 import { useState, useEffect, useRef } from "react";
 import { connect, io } from "socket.io-client";
 
 const socket = io("http://localhost:5000");
 
 export function Adminfetch() {
-  const icon = <IconAlertCircle />;
   const [data, setData] = useState<any>([]);
   const latestDataRef = useRef<any>(null);
   const [dataReset, setResetData] = useState<any>('');
@@ -37,7 +25,7 @@ export function Adminfetch() {
   const [dataE, setDataE] = useState<any>([]);
   const latestDataRefE = useRef<any>(null);
 
-const [dataH, setDataH] = useState<any>([]); //humidity data
+const [dataH, setDataH] = useState<any>([]); // humidity data
 const latestDataRefH = useRef<any>(null);
 
 
@@ -81,7 +69,7 @@ const latestDataRefH = useRef<any>(null);
         setData(result);
         latestDataRef.current = result;
       } catch (error) {
-        console.error("Error fetching data:", error);
+          
       }
     };
 
@@ -105,7 +93,7 @@ const latestDataRefH = useRef<any>(null);
         console.error("Error fetching humidity data:", error);
       }
     };
-
+  
 
     const fetchDataW = async () => {
       try {
@@ -134,7 +122,7 @@ const latestDataRefH = useRef<any>(null);
       fetchData();
       fetchDataW();
       fetchHumidityData();
-    }, 50);
+    }, 1000);
 
     return () => {
       clearInterval(interval);
@@ -152,9 +140,6 @@ const latestDataRefH = useRef<any>(null);
       socket.disconnect(); // Clean up the socket connection on component unmount
     };
   }, []);
-
-    // Assuming `socket` is defined somewhere in your component
-    
 
   return (
     <div>
@@ -208,15 +193,7 @@ const latestDataRefH = useRef<any>(null);
         radius="md"
         className={classes.gradBorder}
       >
-        <Text
-          fw={900}
-          variant="gradient"
-          gradient={{ from: "blue", to: "green", deg: 180 }}
-          fz={rem(50)}
-          ml={150}
-        >
-          Humidity Graph:
-        </Text>
+       <Text>Humdity Graph</Text>
         <AreaChart
           h={350}
           w={900}
@@ -274,7 +251,7 @@ const latestDataRefH = useRef<any>(null);
           <Button
             variant="gradient"
             gradient={{ from: "blue", to: "cyan", deg: 90 }}
-            leftSection={icon}
+            leftSection={<IconAlertCircle/>}
             onClick={handleReset}
           >
             Reset
