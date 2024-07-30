@@ -1,6 +1,6 @@
 from apscheduler.schedulers.background import BackgroundScheduler
 import random
-from flask_app.socketio_events.bbbw import bbbwSessionInfo_updateVolumeLevel, bbbwMiscellanous_updateRoomState
+from flask_app.socketio_events.bbbw import bbbwSessionInfo_updateVolumeLevel, bbbwMiscellanous_updateRoomState, update_room_data
 from flask_app import app
 from datetime import datetime, timezone
 from flask_app.database.crud import update_instrument_wear_values, get_session_active_core
@@ -41,6 +41,8 @@ def core_per_second():
         data = {'volume_level': simulated_volume_level, 'time_stamp': event_time_stamp}
         # Simulates a socketio event emitted from bbbw_SessionInfo
         bbbwSessionInfo_updateVolumeLevel(data)
+
+        update_room_data()
 
 # Schedule check_session to run every minute
 scheduler.add_job(check_session, 'cron', minute='*')

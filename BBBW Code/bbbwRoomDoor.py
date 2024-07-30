@@ -129,6 +129,7 @@ GPIO.setup(REED_PIN, GPIO.IN)
 def check_door_closed():
     door_closed_current = GPIO.input(REED_PIN)
     if database["door_closed"] == door_closed_current:
+        sio.emit("bbbwRoomDoor_BrokenInto", {"door_state": "OPENED"})  
         return
     database["door_closed"] = door_closed_current
     # Door broken into
@@ -136,10 +137,11 @@ def check_door_closed():
         database["door_broken_into"] = True
         alarm_timer()
         update_OLED(alarm_active=True)
-        sio.emit("bbbwRoomDoor_BrokenInto", {"door_broken_into": True})
+        sio.emit("bbbwRoomDoor_BrokenInto", {"door_state": "BROKEN INTO"})
     # Door closed normally
     elif door_closed_current and database["door_locked"] and not database["door_broken_into"]:
         update_OLED()
+        sio.emit("bbbwRoomDoor_BrokenInto", {"door_state": "CLOSED"})  
 
 database = {
     "master_password": "123456",

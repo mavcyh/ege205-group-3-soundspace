@@ -1,13 +1,29 @@
 from flask import request
 from flask_app import socketio
-from flask_app.database.crud import write_volume_level_data, update_event,insert_humidity_data
+from flask_app.database.crud import write_volume_level_data, update_event, insert_humidity_data, get_instrument_data, get_session_active
 
+roomData = {
+    "room_door_status": 'CLOSED',
+    "instrument_data": "",
+    "loitering_detected": False, 
+    "item_dropped": False
+}
+
+def update_room_data():
+    roomData["instrument_data"] = get_instrument_data()
 #region SOCKETIO EVENTS
 
 #region bbbwRoomDoor
 @socketio.event
-def bbbwRoomDoor_BrokenInto(data):
-    if data["door_broken_into"] == True:
+def bbbwRoomDoor_DoorState(data):
+    if data["door_state"] == "OPENED":
+        roomData["room_door_status"] = "OPENED"
+
+    elif data["door_state"] == "CLOSED":
+        roomData["room_door_status"] = "CLOSED"
+
+    elif data["door_state"] == "BROKEN INTO":
+        roomData["room_door_status"] == "BROKEN INTO"
         event = "door broken into"
         update_event(event)
 
@@ -43,12 +59,18 @@ def bbbwMiscellanous_updateRoomState(data):
     if data["motion_detected"] == True:
         event = "motion"
         update_event(event)
-
+        start_datetime, end_datetime = get_session_active()
+        if start_datetime and end_datetime:
+            roomData["loitering_detected"] = False
+        elif start_datetime is None and end_datetime is None:
+            roomData["loitering_detected"] = True
 
 @socketio.event
 def bbbwMiscellanous_deviceDropped():
     event = "dropped"
     update_event(event)
+    start_datetime, end_datetime = get_session_active()
+    roomData["item_dropped"] = True
 
 #endregion bbbwMiscellanous
 

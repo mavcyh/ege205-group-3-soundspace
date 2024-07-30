@@ -43,6 +43,21 @@ master_password_model = nsAdmin.model("Update master password", {
     "master_password": fields.String                                      
 })
 
+instrument_roomData_model = nsApi.model("InstrumentData", {
+    "locker_id": fields.String,
+    "instrument_name": fields.String,
+    "wear_value": fields.Float,
+    "price_per_hour": fields.Float,
+    "usage": fields.Boolean
+})
+
+room_data_model = nsApi.model("RoomData", {
+    "room_door_status": fields.String,
+    "instrument_data": fields.Nested(instrument_roomData_model),
+    "loitering_detected": fields.Boolean,
+    "item_dropped": fields.Boolean
+})
+
 instrument_data_model = nsApi.model("InstrumentData", {
     "locker_id": fields.String,
     "instrument_name": fields.String,
