@@ -1,4 +1,4 @@
-from flask import json
+from flask import json, jsonify
 from flask_app import app, db
 from flask_app.database.models import Booking, Instrument, Volume, Events, Humidity, booking_instrument
 from datetime import datetime, timezone, timedelta
@@ -62,6 +62,9 @@ def create_booking(start_datetime, end_datetime, locker_ids, email, temporary_pa
     db.session.add(new_booking)
     db.session.commit()
     print("New booking created.")
+
+# def update_temporary_password():
+
 
 def write_volume_level_data(time_stamp, volume_data, volume_limit):
     volume_data_json = json.dumps(volume_data).strip('[]')
@@ -163,6 +166,28 @@ def get_start_datetime():
     print (start_datetimes)
     return start_datetimes
 
+def get_instrument_data():
+    start_datetime, end_datetime = get_session_active()
+    booked_instrument_ids = [] 
+    if start_datetime and end_datetime:
+        # Get the list of booked instruments for the ongoing session
+        booked_instruments = db.session.query(booking_instrument).filter_by(booking_start_datetime=start_datetime).all()
+        booked_instrument_ids = [str(instrument.locker_id) for instrument in booked_instruments]
+
+    instruments = Instrument.query.all()
+    instrument_data = []
+    for instrument in instruments:
+        instrument_dict = {
+            "locker_id": instrument.locker_id,
+            "instrument_name": instrument.instrument_name,  
+            "wear_value": float(instrument.wear_value),
+            "price_per_hour": float(instrument.price),
+            "usage": True if instrument.locker_id in booked_instrument_ids else False
+        }
+
+        instrument_data.append(instrument_dict)
+    return instrument_data
+
 
 def get_booking_availability_and_instruments():
     now = datetime.now(timezone.utc).strftime('%Y-%m-%dT%H:%M') 
@@ -182,7 +207,7 @@ def get_booking_availability_and_instruments():
         instrument_dict = {
             "locker_id": instrument.locker_id,
             "instrument_name": instrument.instrument_name,  
-            "price_per_hour": float(instrument.price)  
+            "price_per_hour": float(instrument.price)
         }
         instrument_data.append(instrument_dict)
 
@@ -216,6 +241,28 @@ def insert_humidity_data(humidity_value):
     new_humidity = Humidity(time_stamp=time_stamp, humidity=humidity_value)
     db.session.add(new_humidity)
     db.session.commit()
+
+def serialize_booking(booking):
+    # Serialize the booking object into a dictionary
+    return {
+        'start_datetime': booking.start_datetime,
+        'end_datetime': booking.end_datetime,
+        'email': booking.email,
+        'temporary_password': booking.temporary_password,
+        'device_dropped': booking.device_dropped,
+        'locker_ids': [locker.locker_id for locker in booking.locker_numbers]
+    }
+
+def get_all_bookings():
+    # Query all bookings from the database
+    all_bookings = Booking.query.all()
+    
+    # Serialize all bookings
+    serialized_bookings = [serialize_booking(booking) for booking in all_bookings]
+    
+    # Return the result in the specified format
+    return jsonify({'all-bookings': serialized_bookings})
+
 
 def get_humidity_data():    
     # Get the current UTC time and calculate the time two hours ago
@@ -264,6 +311,19 @@ def get_wear_values():
 def update_instrument_wear_values():
     start_datetime, end_datetime = get_session_active()
     
+    # Get the current humidity data
+    humidity_data = get_humidity_data()
+    
+    if not humidity_data:
+        # If there's no humidity data, use a default or fallback value
+        current_humidity = 0
+    else:
+        # Assume you want the most recent humidity value
+        current_humidity = humidity_data[-1]['humidity_data']
+
+    # Calculate the wear increment based on humidity
+    wear_increment = current_humidity * 0.01  # 1 percent humidity = 0.01 wear increment
+
     if start_datetime and end_datetime:
         # Get the list of booked instruments for the ongoing session
         booked_instruments = db.session.query(booking_instrument).filter_by(booking_start_datetime=start_datetime).all()
@@ -273,9 +333,15 @@ def update_instrument_wear_values():
         for locker_id in booked_instrument_ids:
             instrument = Instrument.query.filter_by(locker_id=locker_id).first()
             if instrument:
-                instrument.wear_value += Decimal(0.5)  # Increase wear value by 0.5 for in-use instruments
+                instrument.wear_value += Decimal(0.5 + wear_increment)  # Increase wear value by 0.5 for in-use instruments
                 db.session.commit()
                 print(f"Instrument wear value: {instrument.wear_value}")
+        
+        # Update wear value for instruments not booked during the active session
+        non_booked_instruments = Instrument.query.filter(Instrument.locker_id.notin_(booked_instrument_ids)).all()
+        for instrument in non_booked_instruments:
+            instrument.wear_value += Decimal(0.1)   # Increase wear value by 0.1 for non-active instruments
+            db.session.commit()
 
     else:
         # If no active session, update wear value for all instruments
@@ -292,6 +358,7 @@ def update_event(event):
             update_motion = Events(timestamp=datetime_str, event_names="Motion Detected!", severity=1)
             db.session.add(update_motion)
             db.session.commit()
+
     if event == "dropped":
         if start_datetime and end_datetime:
             update_dropped = Events(timestamp=datetime_str, event_names="Device Dropped!", severity=2)    
@@ -327,12 +394,11 @@ def get_event():
 
 def coded_booking():
     # Define hardcoded parameters
-    start_datetime = "2024-07-28T15:00:00.000Z"
-    end_datetime = "2024-07-28T18:28:00.000Z"
-    locker_ids = ["1", "2"]  # Example locker IDs
+    start_datetime = "2024-07-30T13:00:00.000Z"
+    end_datetime = "2024-07-30T14:00:00.000Z"
+    locker_ids = ["1"]  # Example locker IDs
     email = "example@example.com"
     temporary_password = str(random.randint(0, 999999)).zfill(6)
     
     # Use the create_booking function to insert the booking
     create_booking(start_datetime, end_datetime, locker_ids, email, temporary_password)
-

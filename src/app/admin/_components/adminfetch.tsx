@@ -93,7 +93,7 @@ const latestDataRefH = useRef<any>(null);
         console.error("Error fetching humidity data:", error);
       }
     };
-
+  
 
     const fetchDataW = async () => {
       try {

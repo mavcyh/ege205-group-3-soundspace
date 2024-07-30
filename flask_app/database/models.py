@@ -12,7 +12,7 @@ from flask_app import db, Numeric
 
 booking_instrument = db.Table('booking_instrument',
     db.Column('booking_start_datetime', db.String, db.ForeignKey('booking.start_datetime'), primary_key=True),
-    db.Column('locker_id', db.Integer, db.ForeignKey('instrument.locker_id'), primary_key=True)
+    db.Column('locker_id', db.String, db.ForeignKey('instrument.locker_id'), primary_key=True)
 )
 
 class Booking(db.Model):

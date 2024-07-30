@@ -2,6 +2,7 @@ from flask import jsonify
 from flask_restx import Resource
 from flask_app import nsApi, nsAdmin
 from flask_app import socketio
+from flask_app.socketio_events.bbbw import roomData
 from flask_app.database.crud import *
 from .models import *
 from flask_app.database.crud import *
@@ -64,13 +65,24 @@ class admin_humidity_data(Resource):
     def get(self):
         return get_humidity_data()
 
-@nsAdmin.route("/session-volume-data")
-class admin_session_volume_data(Resource):
+# @nsAdmin.route("/session-volume-data")
+# class admin_session_volume_data(Resource):
+# # Return an array of all the volume data
+
+@nsAdmin.route("/current-session-volume-data")
+class admin_current_session_volume_data(Resource):
     @nsApi.expect(get_booking_start_datetime)
     @nsApi.marshal_list_with(volume_model)
     def post(self):
         booking_start_datetime = nsApi.payload["start_datetime"]       
         return get_volume_data_by_start_datetime(booking_start_datetime)
+
+@nsAdmin.route("/humidity-data")
+class admin_humidity_data(Resource):
+    @nsApi.marshal_list_with(humidity_model)
+    def get(self):
+        return get_humidity_data()
+
 
 @nsAdmin.route("/change-master-password")
 class update_master_password(Resource):
@@ -85,6 +97,12 @@ class all_bookings(Resource):
     def get(self):
         all_start_datetime = get_start_datetime()
         return {"start_datetime": all_start_datetime}
+
+@nsAdmin.route("/get-room-data")
+class room_data(Resource):
+    @nsApi.marshal_list_with(room_data_model)
+    def get(self):
+        return roomData
 
 @nsAdmin.route("/instrument-data")
 class admin_instrument_data(Resource):
