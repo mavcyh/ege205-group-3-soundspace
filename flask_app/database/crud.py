@@ -311,6 +311,19 @@ def get_wear_values():
 def update_instrument_wear_values():
     start_datetime, end_datetime = get_session_active()
     
+    # Get the current humidity data
+    humidity_data = get_humidity_data()
+    
+    if not humidity_data:
+        # If there's no humidity data, use a default or fallback value
+        current_humidity = 0
+    else:
+        # Assume you want the most recent humidity value
+        current_humidity = humidity_data[-1]['humidity_data']
+
+    # Calculate the wear increment based on humidity
+    wear_increment = current_humidity * 0.01  # 1 percent humidity = 0.01 wear increment
+
     if start_datetime and end_datetime:
         # Get the list of booked instruments for the ongoing session
         booked_instruments = db.session.query(booking_instrument).filter_by(booking_start_datetime=start_datetime).all()
@@ -320,9 +333,15 @@ def update_instrument_wear_values():
         for locker_id in booked_instrument_ids:
             instrument = Instrument.query.filter_by(locker_id=locker_id).first()
             if instrument:
-                instrument.wear_value += Decimal(0.5)  # Increase wear value by 0.5 for in-use instruments
+                instrument.wear_value += Decimal(0.5 + wear_increment)  # Increase wear value by 0.5 for in-use instruments
                 db.session.commit()
                 print(f"Instrument wear value: {instrument.wear_value}")
+        
+        # Update wear value for instruments not booked during the active session
+        non_booked_instruments = Instrument.query.filter(Instrument.locker_id.notin_(booked_instrument_ids)).all()
+        for instrument in non_booked_instruments:
+            instrument.wear_value += Decimal(0.1)   # Increase wear value by 0.1 for non-active instruments
+            db.session.commit()
 
     else:
         # If no active session, update wear value for all instruments
@@ -375,8 +394,8 @@ def get_event():
 
 def coded_booking():
     # Define hardcoded parameters
-    start_datetime = "2024-07-30T05:00:00.000Z"
-    end_datetime = "2024-07-30T07:00:00.000Z"
+    start_datetime = "2024-07-30T13:00:00.000Z"
+    end_datetime = "2024-07-30T14:00:00.000Z"
     locker_ids = ["1"]  # Example locker IDs
     email = "example@example.com"
     temporary_password = str(random.randint(0, 999999)).zfill(6)

@@ -28,6 +28,18 @@ export function Dashboard() {
       item_dropped: false
    })
 
+   const handleResetWear = async (lockerId: string) => {
+    try {
+      await fetch("http://localhost:5000/admin/reset-locker-wear", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ locker_id: lockerId }),
+      });
+    } catch (error) {
+      console.error(`Error resetting locker wear: ${error}`);
+    }
+  };
+
   useEffect(() => {
     async function fetchDashboardData() {
       try {
@@ -152,6 +164,7 @@ export function Dashboard() {
                 locker_id={instrument.locker_id}
                 instrument_name={instrument.instrument_name}
                 wear_value={instrument.wear_value}
+                onReset={handleResetWear}  // Pass the reset handler here
               />
             )}
           </Group>
