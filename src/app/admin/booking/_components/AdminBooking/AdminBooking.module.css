@@ -1,5 +1,5 @@
 .paper {
-    margin-top: 50px;
+    margin-top: 40px;
     width: 600px;
     padding: 50px;
     padding-bottom: 35px;
@@ -17,12 +17,4 @@
 
 .instrumentSelector {
     width: 500px;   
-}
-
-
-.heading {
-    margin-top: 15px;
-    margin-bottom: 10px;
-    font-weight: 500;
-    font-size: 18px;
 }

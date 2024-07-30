@@ -4,18 +4,18 @@ from flask_app import nsApi, nsAdmin
 from flask_app import socketio
 from flask_app.database.crud import *
 from .models import *
+from flask_app.database.crud import *
+from .models import *
 from flask_app.socketio_events.bbbw import change_master_password
+from flask_app.core.mailer import send_confirmation_booking_email
 from flask_app.core.mailer import send_confirmation_booking_email
 import random
 from datetime import datetime
 import pytz
 
+
 #region BOOKING PAGE
 
-# Return an array of all the bookings with a start time beyond the current datetime.
-# Function: Blocking out the timeslots on the website.
-# AND return an array of all the instruments lockers.
-# Function: Selection of the instrument (in reality, locker) to book on the website.
 @nsApi.route("/booking-and-locker-info")
 class api_booking_and_locker_info(Resource):
     @nsApi.marshal_list_with(booking_availability_model)
@@ -29,10 +29,10 @@ class api_create_booking(Resource):
     def post(self):
         start_datetime = nsApi.payload["start_datetime"]
         end_datetime = nsApi.payload["end_datetime"]
-        locker_ids = nsApi.payload["lockers"]
+        locker_ids = nsApi.payload["locker_ids"]
         email = nsApi.payload["email"]
         if not is_time_slot_available(start_datetime, end_datetime):
-            return {"message": "Timeslot is not available! Refresh the page."}, 400
+            return {"error_message": "Timeslot is not available! Refresh the page."}, 400
         
         temporary_password = str(random.randint(0, 999999)).zfill(6)
         create_booking(start_datetime, end_datetime, locker_ids, email, temporary_password)
@@ -45,25 +45,18 @@ class api_create_booking(Resource):
         
         start_datetime = convert_to_formatted_singapore_datetime(start_datetime)
         end_datetime = convert_to_formatted_singapore_datetime(end_datetime)
-        send_confirmation_booking_email(temporary_password, start_datetime, end_datetime, get_instrument_names_from_locker(locker_ids), email)
+        try:
+            send_confirmation_booking_email(temporary_password, start_datetime, end_datetime, get_instrument_names_from_locker(locker_ids), email)
+        except Exception as error:
+            print("Failed to send email.")
+            print(error)
+            return {"error_message": "Something went wrong when trying to send you the email. Please try again later."}, 400
+            
         
 #endregion BOOKING PAGE
 
 
 #region ADMIN PAGE
-
-# Return an array of all the volume data
-@nsAdmin.route("/current-session-volume-data")
-class admin_current_session_volume_data(Resource):
-    @nsApi.expect(get_booking_start_datetime)
-    @nsApi.marshal_with(volume_model)
-    def post(self):
-        booking_start_datetime = nsApi.payload["start_datetime"]
-        if booking_start_datetime == "  ":
-            return get_volume_data_by_start_datetime(booking_start_datetime)
-        
-        get_volume = get_volume_data_by_start_datetime(booking_start_datetime)
-        return get_volume
 
 @nsAdmin.route("/humidity-data")
 class admin_humidity_data(Resource):
@@ -71,6 +64,13 @@ class admin_humidity_data(Resource):
     def get(self):
         return get_humidity_data()
 
+@nsAdmin.route("/session-volume-data")
+class admin_session_volume_data(Resource):
+    @nsApi.expect(get_booking_start_datetime)
+    @nsApi.marshal_list_with(volume_model)
+    def post(self):
+        booking_start_datetime = nsApi.payload["start_datetime"]       
+        return get_volume_data_by_start_datetime(booking_start_datetime)
 
 @nsAdmin.route("/change-master-password")
 class update_master_password(Resource):
@@ -114,41 +114,12 @@ class admin_reset_locker_wear(Resource):
 class admin_change_master_password(Resource):
     @nsAdmin.expect(change_master_password_model)
     def post(self):
-        current_master_password = nsApi.payload["current_master_password"]
         new_master_password = nsApi.payload["new_master_password"]
-        print(f"Current master password: {current_master_password}\nNew master password: {new_master_password}")
+        print(f"New master password: {new_master_password}")
+        TxData = {
+            "new_master_password": new_master_password
+        }
+        socketio.emit("serverToRoomDoor_updateMasterPassword", TxData)
 
 
 #endregion ADMIN PAGE
-
-
-#region TEST
-
-@nsApi.route("/test/start-session")
-class route_start_session(Resource):
-    def post(self):
-        TxData = {
-                "session_duration_left": 30,
-                "maximum_volume_level": 10
-        }
-        socketio.emit("serverToSessionInfo_connected", TxData)
-        
-@nsApi.route("/test/end-session")
-class route_end_session(Resource):
-    def post(self):
-        TxData = {
-                "session_duration_left": 0,
-                "maximum_volume_level": 10
-        }
-        socketio.emit("serverToSessionInfo_connected", TxData)
-
-@nsApi.route("/test/change-door-password")
-class route_change_door_password(Resource):
-    def post(self):
-        TxData = {
-            "master_password": "111111",
-            "temporary_password": "123412"
-        }
-        socketio.emit("serverToRoomDoor_updatePasswords", TxData)
-
-#endregion TEST

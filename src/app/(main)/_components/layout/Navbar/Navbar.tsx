@@ -1,4 +1,3 @@
-import React from 'react'
 import { Flex, Image, Box, Button, Group } from '@mantine/core'
 import NextImage from 'next/image'
 import logo from "@/assets/soundspace-logo.jpg"
@@ -9,7 +8,7 @@ export const Navbar = () => {
     <>
         <Box className={classes.Navbar}>
             <Flex justify='space-between'>
-                <Image component={NextImage} src={logo} alt='logo' className={classes.logo}/>
+                <Image priority component={NextImage} src={logo} alt='logo' className={classes.logo}/>
                 <Group className={classes.buttonsgroup}>
                   <Button className={classes.buttons} component='a' href='/'>Home</Button>
                   <Button className={classes.buttons} component='a' href='/about'>About</Button>

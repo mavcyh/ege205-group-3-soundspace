@@ -1,12 +1,10 @@
 import { Metadata } from 'next';
-import { Center, Title } from '@mantine/core';
+import { Center } from '@mantine/core';
 import { Booking } from './_components/Booking/Booking';
-
 
 export const metadata: Metadata = {
   title: 'SoundSpace | Bookings',
 };
-
 
 async function fetchBookingAndLockerInfo() {
   try {
@@ -30,7 +28,6 @@ async function fetchBookingAndLockerInfo() {
     console.log("Failed to connect to the Flask API '/api/booking-and-locker-info'")
     return { current_bookings: [], instrument_data: [] }
   }
-
 };
 
 export default async function Bookings() {
@@ -39,12 +36,11 @@ export default async function Bookings() {
   bookingAndLockerInfo.current_bookings.forEach((current_booking) =>
     currentBookings.push({ start_datetime: new Date(current_booking.start_datetime), end_datetime: new Date(current_booking.end_datetime)}
   ))
-  const instrumentData = bookingAndLockerInfo.instrument_data;
 
   return (
       <>
         <Center>
-          <Booking currentBookings={currentBookings} instrumentData={instrumentData} />
+          <Booking currentBookings={currentBookings} instrumentData={bookingAndLockerInfo.instrument_data} />
         </Center>
       </>
   )
