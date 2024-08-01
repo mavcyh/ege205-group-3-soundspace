@@ -1,6 +1,7 @@
 import { Metadata } from 'next';
 import { Center } from '@mantine/core';
 import { Booking } from './_components/Booking/Booking';
+import config from '@/config';
 
 export const metadata: Metadata = {
   title: 'SoundSpace | Bookings',
@@ -8,7 +9,7 @@ export const metadata: Metadata = {
 
 async function fetchBookingAndLockerInfo() {
   try {
-    const response = await fetch("http://localhost:5000/api/booking-and-locker-info",
+    const response = await fetch(`http://${config.apiServerIp}:5000/api/booking-and-locker-info`,
       {
       method: "GET",
       headers: { "Content-Type": "application/json" },
