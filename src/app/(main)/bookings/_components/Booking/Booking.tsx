@@ -5,7 +5,7 @@ import { DatePicker } from '@mantine/dates';
 import { InstrumentSelector } from '@/components/InstrumentSelector/InstrumentSelector';
 import { TimeslotSelector } from '../TimeslotSelector/TimeslotSelector';
 import { OrderSummary } from '../OrderSummary/OrderSummary';
-import classes from "./Booking.module.css"
+import classes from './Booking.module.css';
 
 interface Instrument {
   locker_id: string,

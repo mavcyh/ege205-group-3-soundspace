@@ -1,5 +1,5 @@
 const config = {
-    apiServerIp: "192.168.X.X"
+    apiServerIp: "localhost"
 };
 
 export default config;
