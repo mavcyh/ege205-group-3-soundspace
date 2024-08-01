@@ -459,7 +459,9 @@ def update_event(event):
                 severity = 1  
             elif instrument.wear_value >= 80:
                 severity = 0  
-
+            else:
+                return
+            
             new_event = Events(timestamp=datetime_str, event_names=event_message, severity=severity)
             db.session.add(new_event)
             db.session.commit()
