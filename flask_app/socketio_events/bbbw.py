@@ -1,10 +1,9 @@
 from flask import request
 from flask_app import socketio
-from flask_app.database.crud import write_volume_level_data, update_event, insert_humidity_data, get_instrument_data, get_session_active
+from flask_app.database.crud import write_volume_level_data, update_event, insert_humidity_data, get_instrument_data, get_session_active, get_all_instrument_names
 roomData = {
-    "room_door_status": 'CLOSED',
-    "instrument_data": [{'locker_id': '1', 'instrument_name': 'Fender Stratocaster', 'wear_value': 50, 'price_per_hour': 2.5, 'usage': False},
-                      {'locker_id': '2', 'instrument_name': 'Ibanez SR300E', 'wear_value': 70, 'price_per_hour': 1.5, 'usage': False}],
+    "room_door_status": None,
+    "instrument_data": [],
     "loitering_detected": False, 
     "item_dropped": False
 }
@@ -25,7 +24,7 @@ def bbbwRoomDoor_DoorState(data):
     elif data["door_state"] == "BROKEN INTO":
         roomData["room_door_status"] = "BROKEN INTO"
         event = "door_broken_into"
-        update_event(event)
+        update_event(event, "Door Broken into!", 2) # event, event name, severity
 
 def change_temporary_password(temp_password):
     TxData = {
@@ -59,7 +58,7 @@ def bbbwMiscellanous_updateRoomState(data):
     insert_humidity_data(data["humidity_level"])
     if data["motion_detected"] == True:
         event = "loitering"
-        update_event(event)
+        update_event(event, "Loitering Detected!", 1)
         start_datetime, end_datetime = get_session_active()
         if start_datetime and end_datetime:
             roomData["loitering_detected"] = False
@@ -68,12 +67,12 @@ def bbbwMiscellanous_updateRoomState(data):
 
     if data["humidity_level"] >= 75:
         event = "high_humidity"
-        update_event(event)
+        update_event(event, "Humidity Level Exceeded!", 0)
 
 @socketio.event
 def bbbwMiscellanous_deviceDropped():
     event = "dropped"
-    update_event(event)
+    update_event(event, "Device Dropped!", 2)
     roomData["item_dropped"] = True
 
 #endregion bbbwMiscellanous
@@ -82,12 +81,15 @@ def bbbwMiscellanous_deviceDropped():
 
 #region START/ END SESSION
 
+
 connected_bbbw_session_id = {
     "RoomDoor": "",
     "InstrumentLocker": {},
     "SessionInfo": "",
     "Miscellanous": "",
 }
+
+
 
 @socketio.event
 def bbbw_connected(data):
@@ -112,6 +114,7 @@ def bbbw_connected(data):
             socketio.emit("serverToRoomDoor_updatePasswords ", TxData)
             
         case "InstrumentLocker":
+            
             TxData = {
                 data["instrument_locker_number"]: {
                     "pack_up_duration": pack_up_duration,
@@ -121,6 +124,7 @@ def bbbw_connected(data):
                     "instrument_name": "Fender Bass"
                 }
             }
+            TxData = get_all_instrument_names()
             socketio.emit("serverToInstrumentLocker_connected", TxData)
         
         case "SessionInfo":

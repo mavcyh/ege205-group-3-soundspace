@@ -3,11 +3,10 @@ import random
 from flask_app.socketio_events.bbbw import bbbwSessionInfo_updateVolumeLevel, bbbwMiscellanous_updateRoomState, update_room_data, change_temporary_password
 from flask_app import app, socketio
 from datetime import datetime, timezone
-from flask_app.database.crud import update_instrument_wear_values, get_session_active_core, update_event, update_temporary_password, get_volume_limit
+from flask_app.database.crud import update_instrument_wear_values, get_session_active_core, update_event, update_temporary_password, get_volume_limit, get_booked_lockers
 
 scheduler = BackgroundScheduler()
 
-session_active = False  # Global variable to keep track of session state
 
 volume_limit = {
     "00:00": 5,
@@ -18,28 +17,26 @@ volume_limit = {
 }
 
 def check_session():
-    global session_active
     with app.app_context():
         current_volume_limit = get_volume_limit(volume_limit)
         vol_limit = {"maximum_volume_level": current_volume_limit}
         socketio.emit("serverToSessionInfo_updateMaximumVolumeLevel", vol_limit)
+        unlocked_lockers = get_booked_lockers()
         start_datetime, end_datetime = get_session_active_core()
         if end_datetime:
             current_time = datetime.now(timezone.utc)
-            if current_time < end_datetime:
-                session_active = True
-                remaining_time_seconds = int((end_datetime - current_time).total_seconds())
-                TxData = {"session_duration": remaining_time_seconds}
-                socketio.emit("serverToSessionInfo_updateSession", TxData)
-                print(f"Remaning time (seconds): {remaining_time_seconds}")
-            else:
-                session_active = False
+            remaining_time_seconds = int((end_datetime - current_time).total_seconds())
+            TxData = {"unlocked_locker_ids": unlocked_lockers,
+                      "session_duration": remaining_time_seconds}
+            socketio.emit("serverToSessionInfo_updateSession", TxData)
+            print(f"Remaning time (seconds): {remaining_time_seconds}")
         else:
-            session_active = False
+            remaining_time_seconds = None
 
 def check_wear_exceeded():
     with app.app_context():
-        update_event("wear_exceeded")
+        event = "wear_exceeded"
+        update_event(event, "", None)
 
 def core_per_second():
     with app.app_context():

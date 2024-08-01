@@ -4,6 +4,7 @@ from flask_app.database.models import Booking, Instrument, Volume, Events, Humid
 from datetime import datetime, timezone, timedelta
 from decimal import Decimal
 import random
+import pytz
 
 volume_limit = {
     "00:00": 5,
@@ -12,6 +13,16 @@ volume_limit = {
     "14:00": 9,
     "20:00": 6,
 }
+
+
+def format_time_to_local(utc_time_str):
+    # Assuming utc_time_str is a string in 'HH:MM' format
+    utc_time = datetime.strptime(utc_time_str, '%Y-%m-%dT%H:%M').replace(tzinfo=pytz.utc)
+
+    local_tz = pytz.timezone('Asia/Singapore')  # Replace with your local timezone, e.g., 'America/New_York'
+    local_time = utc_time.astimezone(local_tz)
+    
+    return local_time.strftime('%H:%M')
 
 # Database format TO TZ format
 def convert_to_utc_datetime(datetime_str):
@@ -37,7 +48,6 @@ def format_datetime(iso_datetime_str):
     formatted_str = dt.strftime('%Y-%m-%dT%H:%M')
     
     return formatted_str
-
 
 def format_time(datetime_str):
     datetime_obj = datetime.fromisoformat(datetime_str).replace(tzinfo=timezone.utc)
@@ -157,12 +167,11 @@ def get_volume_data_by_start_datetime(start_datetime):
     volume_data_list = []
     for volume in volumes:
         volume_dict = {
-            'time_stamp': format_time(volume.time_stamp),
+            'time_stamp': format_time_to_local(volume.time_stamp),
             'volume_limit': volume.volume_limit,
             'volume_data': volume.volume_data
         }
         volume_data_list.append(volume_dict)
-    
     return volume_data_list
 
 def get_instrument_names_from_locker(locker_ids):
@@ -211,6 +220,21 @@ def get_start_datetime():
     
     print (start_datetimes)
     return start_datetimes
+
+def get_booked_lockers():
+    start_datetime, end_datetime = get_session_active()
+    if start_datetime and end_datetime:
+        booked_lockers = db.session.query(booking_instrument).filter_by(booking_start_datetime=start_datetime).all()
+        booked_locker_ids = [str(instrument.locker_id) for instrument in booked_lockers]
+        return booked_locker_ids
+    return []
+
+def get_all_instrument_names():
+    instruments = db.session.query(Instrument).all()
+    tx_data = {}
+    for instrument in instruments:
+        tx_data[instrument.locker_id] = instrument.instrument_name
+    return tx_data
 
 def get_instrument_data():
     start_datetime, end_datetime = get_session_active()
@@ -396,21 +420,20 @@ def update_instrument_wear_values():
             instrument.wear_value += Decimal(0.1)   # Increase wear value by 0.1 for non-active instruments
             db.session.commit()
 
-def update_event(event):
+def update_event(event, event_name, severity):
 
     datetime_str = datetime.now(timezone.utc).strftime('%Y-%m-%dT%H:%M')
     start_datetime, end_datetime = get_session_active()
-    current_time = datetime.now(timezone.utc)
 
     if event == "loitering":
         if start_datetime is None and end_datetime is None:
-            update_motion = Events(timestamp=datetime_str, event_names="Loitering Detected!", severity=1)
+            update_motion = Events(timestamp=datetime_str, event_names=event_name, severity=severity)
             db.session.add(update_motion)
             db.session.commit()
 
     if event == "dropped":
         if start_datetime and end_datetime:
-            update_dropped = Events(timestamp=datetime_str, event_names="Device Dropped!", severity=2)    
+            update_dropped = Events(timestamp=datetime_str, event_names=event_name , severity=severity)    
             db.session.add(update_dropped)
             ongoing_booking = Booking.query.filter(
                 Booking.start_datetime == start_datetime,
@@ -424,7 +447,7 @@ def update_event(event):
 
     if event == "door_broken_into":
         if start_datetime is None and end_datetime is None:
-            update_door_broken_into = Events(timestamp=datetime_str, event_names="Door Broken into!", severity=2)
+            update_door_broken_into = Events(timestamp=datetime_str, event_names=event_name, severity=severity)
             db.session.add(update_door_broken_into)
             db.session.commit
 
@@ -443,7 +466,7 @@ def update_event(event):
 
         if last_event_time is None or (current_time - last_event_time) >= timedelta(hours=1):
             # Add event to the database
-            update_humidity_exceeded = Events(timestamp=datetime_str, event_names="Humidity Level Exceeded!", severity=0)
+            update_humidity_exceeded = Events(timestamp=datetime_str, event_names=event_name, severity=severity)
             db.session.add(update_humidity_exceeded)
             db.session.commit()
     
@@ -459,7 +482,7 @@ def update_event(event):
                 severity = 1  
             elif instrument.wear_value >= 80:
                 severity = 0  
-            else:
+            elif severity == None:
                 return
             
             new_event = Events(timestamp=datetime_str, event_names=event_message, severity=severity)
@@ -467,12 +490,29 @@ def update_event(event):
             db.session.commit()
 
 def get_event():
+    # Query all events from the database
     events = Events.query.all()
     event_list = []
 
+    # Define timezone for conversion (you can adjust this to your local timezone)
+    local_tz = pytz.timezone('Asia/Singapore')  # Replace 'Your/LocalTimezone' with your local timezone
+
     for event in events:
+        # Parse the UTC timestamp string into a datetime object
+        utc_timestamp = datetime.strptime(event.timestamp, "%Y-%m-%dT%H:%M")
+        
+        # Set the datetime object to UTC timezone
+        utc_timestamp = pytz.utc.localize(utc_timestamp)
+        
+        # Convert the datetime object to local time
+        local_timestamp = utc_timestamp.astimezone(local_tz)
+        
+        # Format the local datetime object into the desired string format
+        formatted_timestamp = local_timestamp.strftime("%Y/%m/%d %H:%M")
+        
+        # Create a dictionary for the event
         event_dict = {
-            'timestamp': event.timestamp,
+            'timestamp': formatted_timestamp,
             'event_name': event.event_names,
             'severity': event.severity
         }
