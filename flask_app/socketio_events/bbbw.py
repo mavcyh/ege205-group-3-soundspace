@@ -1,6 +1,6 @@
 from flask import request
 from flask_app import socketio
-from flask_app.database.crud import write_volume_level_data, update_event, insert_humidity_data, get_instrument_data, get_session_active, get_instrument_names
+from flask_app.database.crud import write_volume_level_data, update_event, insert_humidity_data, get_instrument_data, get_session_active, get_all_instrument_names
 roomData = {
     "room_door_status": None,
     "instrument_data": [],
@@ -82,8 +82,6 @@ def bbbwMiscellanous_deviceDropped():
 #region START/ END SESSION
 
 
-TxData = {}
-
 connected_bbbw_session_id = {
     "RoomDoor": "",
     "InstrumentLocker": {},
@@ -95,7 +93,6 @@ connected_bbbw_session_id = {
 
 @socketio.event
 def bbbw_connected(data):
-    get_instrument_names(TxData) # add to txData dictionary instrument ids: names
     # Adds session id of connected BBBW to connected_bbbw_session_id.
     # For instrument lockers, there can be multiple and there is an extra key "intrument_locker_number".
     bbbw_role = data["bbbw_role"]
@@ -117,6 +114,7 @@ def bbbw_connected(data):
             socketio.emit("serverToRoomDoor_updatePasswords ", TxData)
             
         case "InstrumentLocker":
+            
             TxData = {
                 data["instrument_locker_number"]: {
                     "pack_up_duration": pack_up_duration,
@@ -126,6 +124,7 @@ def bbbw_connected(data):
                     "instrument_name": "Fender Bass"
                 }
             }
+            TxData = get_all_instrument_names()
             socketio.emit("serverToInstrumentLocker_connected", TxData)
         
         case "SessionInfo":

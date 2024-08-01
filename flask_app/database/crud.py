@@ -229,10 +229,12 @@ def get_booked_lockers():
         return booked_locker_ids
     return []
 
-def get_instrument_names(TxData):
+def get_all_instrument_names():
     instruments = db.session.query(Instrument).all()
+    tx_data = {}
     for instrument in instruments:
-        TxData[instrument.locker_id] = instrument.instrument_name
+        tx_data[instrument.locker_id] = instrument.instrument_name
+    return tx_data
 
 def get_instrument_data():
     start_datetime, end_datetime = get_session_active()
