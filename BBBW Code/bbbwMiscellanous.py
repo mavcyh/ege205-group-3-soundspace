@@ -3,6 +3,7 @@ import threading
 import time
 import math
 import Adafruit_BBIO.GPIO as GPIO
+import Adafruit_BBIO.PWM as PWM
 import board
 import adafruit_bme680
 import adafruit_lsm9ds1
@@ -32,13 +33,30 @@ GPIO.setup(MOTION_PIN, GPIO.IN)
 
 # S3: 9DOF initialisation (detection of equipment drops)
 lsm9ds1 = adafruit_lsm9ds1.LSM9DS1_I2C(i2c, 0x1C, 0x6A)
-    
+
+BUZZ_PIN = "P9_16"
+BUZZ_VOLUME = 1
+
+def buzz_control(repeat=0, active_time=0, period=0):
+    if repeat < 0:
+        PWM.stop(BUZZ_PIN)
+        return
+    PWM.start(BUZZ_PIN, BUZZ_VOLUME)
+    PWM.set_frequency(BUZZ_PIN, 500)
+    if repeat == 0:
+        return
+    elif repeat > 1:
+        buzz_period_timer_threading = threading.Timer(period, buzz_control, [repeat-1, active_time, period])
+        buzz_period_timer_threading.start()
+    buzz_active_timer_threading = threading.Timer(active_time, PWM.stop, [BUZZ_PIN])
+    buzz_active_timer_threading.start()    
 
 database = {
     "INSTRUMENT_LOCKER_NUMBER": 1,
     "locker_locked": True,
     "instrument_name": None,
-    "session_end_datetime": None
+    "session_end_datetime": None,
+    "session_active": "Inactive"
 }
 sio = socketio.Client()
 @sio.event
@@ -96,6 +114,12 @@ scheduler_thread = threading.Thread(target=scheduler.run)
 scheduler_thread.start()
 
 while True:
+    if GPIO.input(MOTION_PIN):
+        if database["session_active"] == False:
+            buzz_control(repeat = 1, active_time = 0.8)
+        if database["session_active"] == True:
+            buzz_control(repeat = -1)
+
     device_dropped = False
     for i in range(5):
         x, y, z = lsm9ds1.acceleration

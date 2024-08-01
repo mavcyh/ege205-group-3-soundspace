@@ -1,24 +1,41 @@
 from flask import request
 from flask_app import socketio
-from flask_app.database.crud import write_volume_level_data, update_event,insert_humidity_data
+from flask_app.database.crud import write_volume_level_data, update_event, insert_humidity_data, get_instrument_data, get_session_active
+roomData = {
+    "room_door_status": 'CLOSED',
+    "instrument_data": [{'locker_id': '1', 'instrument_name': 'Fender Stratocaster', 'wear_value': 50, 'price_per_hour': 2.5, 'usage': False},
+                      {'locker_id': '2', 'instrument_name': 'Ibanez SR300E', 'wear_value': 70, 'price_per_hour': 1.5, 'usage': False}],
+    "loitering_detected": False, 
+    "item_dropped": False
+}
 
+def update_room_data():
+    roomData["instrument_data"] = get_instrument_data()
 #region SOCKETIO EVENTS
 
 #region bbbwRoomDoor
 @socketio.event
-def bbbwRoomDoor_BrokenInto(data):
-    if data["door_broken_into"] == True:
-        event = "door broken into"
+def bbbwRoomDoor_DoorState(data):
+    if data["door_state"] == "OPENED":
+        roomData["room_door_status"] = "OPENED"
+
+    elif data["door_state"] == "CLOSED":
+        roomData["room_door_status"] = "CLOSED"
+
+    elif data["door_state"] == "BROKEN INTO":
+        roomData["room_door_status"] = "BROKEN INTO"
+        event = "door_broken_into"
         update_event(event)
 
-#endregion bbbwRoomDoor
-@socketio.event
-def change_master_password(master_password):
+def change_temporary_password(temp_password):
     TxData = {
-    "master_password": master_password,
-    "temporary_password": "123412",
+    "temporary_password": temp_password,
     }
-    socketio.emit("serverToRoomDoor_updatePasswords ", TxData)
+    socketio.emit("serverToRoomDoor_updateTemporaryPassword", TxData)
+#endregion bbbwRoomDoor
+
+
+
 #region bbbwInstrumentLocker
 
 #endregion bbbwInstrumentLocker
@@ -29,7 +46,7 @@ def bbbwSessionInfo_updateVolumeLevel(data):
     if data["volume_level"] >= 10:
         TxData = {}
         socketio.emit("serverToSessionInfo_maximumVolumeExceeded", TxData)
-    write_volume_level_data(data["time_stamp"],[data["volume_level"]], 10)
+    write_volume_level_data(data["time_stamp"],[data["volume_level"]])
 
 #endregion bbbwSessionInfo
 
@@ -41,14 +58,23 @@ def bbbwMiscellanous_updateRoomState(data):
     print("Motion Detected" if data["motion_detected"] else "Motion Not Detected")
     insert_humidity_data(data["humidity_level"])
     if data["motion_detected"] == True:
-        event = "motion"
+        event = "loitering"
         update_event(event)
+        start_datetime, end_datetime = get_session_active()
+        if start_datetime and end_datetime:
+            roomData["loitering_detected"] = False
+        elif start_datetime is None and end_datetime is None:
+            roomData["loitering_detected"] = True
 
+    if data["humidity_level"] >= 75:
+        event = "high_humidity"
+        update_event(event)
 
 @socketio.event
 def bbbwMiscellanous_deviceDropped():
     event = "dropped"
     update_event(event)
+    roomData["item_dropped"] = True
 
 #endregion bbbwMiscellanous
 

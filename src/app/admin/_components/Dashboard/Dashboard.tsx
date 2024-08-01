@@ -16,8 +16,29 @@ export function Dashboard() {
   >([]);
 
   const [roomData, setRoomData] = useState<
-  { room_door_status: 'CLOSED' | 'OPENED' | 'BROKEN INTO' }
-  >({ room_door_status: 'CLOSED' })
+  { room_door_status: 'CLOSED' | 'OPENED' | 'BROKEN INTO',
+    instrument_data: {locker_id: string, instrument_name: string, wear_value:number, price_per_hour: number, usage: boolean}[],
+    loitering_detected: boolean
+    item_dropped: boolean
+   }
+  >({ room_door_status: 'CLOSED',
+    instrument_data: [{locker_id: '1', instrument_name: 'Fender Stratocaster', wear_value: 50, price_per_hour: 2.5, usage: false},
+                      {locker_id: '2', instrument_name: 'Ibanez SR300E', wear_value: 70, price_per_hour: 1.5, usage: false}],
+      loitering_detected: false,
+      item_dropped: false
+   })
+
+   const handleResetWear = async (lockerId: string) => {
+    try {
+      await fetch("http://localhost:5000/admin/reset-locker-wear", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ locker_id: lockerId }),
+      });
+    } catch (error) {
+      console.error(`Error resetting locker wear: ${error}`);
+    }
+  };
 
   useEffect(() => {
     async function fetchDashboardData() {
@@ -31,6 +52,21 @@ export function Dashboard() {
         });
         const newHumidityData = await humidityDataResponse.json();
         setHumidityData(newHumidityData);
+        
+        // Getting room data
+        const roomDataResponse : any = await fetch("http://localhost:5000/admin/get-room-data", {
+          method: "GET",
+          headers: {
+            "Content-Type": "application/json",
+          },
+        });
+        const newRoomData: {
+          room_door_status: 'CLOSED' | 'OPENED' | 'BROKEN INTO',
+          instrument_data: { locker_id: string, instrument_name: string, wear_value: number, price_per_hour: number, usage: boolean }[],
+          loitering_detected: boolean
+          item_dropped: boolean
+        } = await roomDataResponse.json();
+        setRoomData(newRoomData);
         
         // Getting volume data
         const volumeDataResponse : any = await fetch("http://localhost:5000/admin/session-volume-data", {
@@ -122,12 +158,15 @@ export function Dashboard() {
             </Stack>     
           </Paper>
           <Group grow align="stretch">
-            {instrumentData.map((instrument) =>
-            <InstrumentData
-              locker_id={instrument.locker_id}
-              instrument_name={instrument.instrument_name}
-              wear_value={instrument.wear_value}
-            />)}
+            {roomData.instrument_data.map((instrument) =>
+              <InstrumentData
+                key={instrument.locker_id}  // Adding a key for better performance
+                locker_id={instrument.locker_id}
+                instrument_name={instrument.instrument_name}
+                wear_value={instrument.wear_value}
+                onReset={handleResetWear}  // Pass the reset handler here
+              />
+            )}
           </Group>
         </Stack>
       </Center>
