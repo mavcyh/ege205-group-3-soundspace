@@ -25,11 +25,7 @@ export function Dashboard() {
       item_dropped: false
    })
 
-   const [eventData, setEventData] = useState<{ timestamp: string, event_name: string, severity: number }[]>([
-    { timestamp: "2024/08/01 19:00", event_name: "Door Broken Into", severity: 2 },
-    { timestamp: "2024/08/01 19:04", event_name: "Loitering Detected", severity: 1 },
-    { timestamp: "2024/08/01 19:04", event_name: "Humidity Level Exceeded", severity: 0 }
-   ]);
+   const [eventData, setEventData] = useState<{ timestamp: string, event_name: string, severity: number }[]>([]);
 
    const handleResetWear = async (lockerId: string) => {
     try {
@@ -76,22 +72,18 @@ export function Dashboard() {
         setRoomData(newRoomData);
         
         // Getting volume data
-        const volumeDataResponse : any = await fetch(`http:/${config.apiServerIp}:5000/admin/session-volume-data`, {
+        const volumeDataResponse : any = await fetch(`http://${config.apiServerIp}:5000/admin/current-session-volume-data`, {
           method: "POST",
           headers: {
             "Content-Type": "application/json",
           },
           body: JSON.stringify({ start_datetime: ""})
         });
-        let newVolumeData : {time_stamp: string, volume_limit: number, volume_data: number}[] = await volumeDataResponse.json();
-        newVolumeData.forEach(volume => {
-          const [hour, minutes] = volume.time_stamp.split(':');
-          volume.time_stamp = `${(24 % (parseInt(hour) + 8)).toString().padStart(2, '0')}:${minutes}`
-        })
+        const newVolumeData : {time_stamp: string, volume_limit: number, volume_data: number}[] = await volumeDataResponse.json();
         setVolumeData(newVolumeData);
 
         // Getting event data
-        const eventDataResponse : any = await fetch(`http://${config.apiServerIp}:5000/admin/event-data`, {
+        const eventDataResponse : any = await fetch(`http://${config.apiServerIp}:5000/admin/get-events`, {
           method: "GET",
           headers: {
             "Content-Type": "application/json",

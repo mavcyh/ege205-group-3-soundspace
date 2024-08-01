@@ -100,7 +100,6 @@ class room_data(Resource):
     @nsApi.marshal_list_with(room_data_model)
     def get(self):
         return roomData
-
 @nsAdmin.route("/instrument-data")
 class admin_instrument_data(Resource):
     def get(self):
