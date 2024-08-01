@@ -7,7 +7,6 @@ from flask_app.database.crud import *
 from .models import *
 from flask_app.database.crud import *
 from .models import *
-from flask_app.socketio_events.bbbw import change_master_password
 from flask_app.core.mailer import send_confirmation_booking_email
 from flask_app.core.mailer import send_confirmation_booking_email
 import random
@@ -83,13 +82,11 @@ class admin_humidity_data(Resource):
     def get(self):
         return get_humidity_data()
 
-
-@nsAdmin.route("/change-master-password")
-class update_master_password(Resource):
-    @nsApi.expect(master_password_model)
-    def post(self):
-        master_password = nsApi.payload["master_password"]
-        change_master_password(master_password)
+@nsAdmin.route("/get-events")
+class get_events_data(Resource):
+    @nsApi.marshal_list_with(events_model)
+    def get(self):
+        return get_event()
 
 @nsAdmin.route("/all-bookings")
 class all_bookings(Resource):

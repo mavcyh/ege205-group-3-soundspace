@@ -43,6 +43,12 @@ master_password_model = nsAdmin.model("Update master password", {
     "master_password": fields.String                                      
 })
 
+events_model = nsApi.model("get all events", {
+    "timestamp": fields.String,
+    "event_name": fields.String,
+    "severity": fields.Integer
+})
+
 instrument_roomData_model = nsApi.model("InstrumentData", {
     "locker_id": fields.String,
     "instrument_name": fields.String,
