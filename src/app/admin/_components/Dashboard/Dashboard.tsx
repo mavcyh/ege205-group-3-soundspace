@@ -1,5 +1,6 @@
 'use client'
-import { Flex, Stack, Paper, Center, Text, Group, Container, ScrollArea, Card } from '@mantine/core';
+import { Flex, Stack, Paper, Center, Text, Group, Container, ScrollArea } from '@mantine/core';
+import { IconAlertTriangle, IconAlertCircle, IconAlertSquareRounded } from '@tabler/icons-react'
 import { AreaChart } from '@mantine/charts';
 import { useState, useEffect } from 'react';
 import classes from './Dashboard.module.css'
@@ -26,7 +27,8 @@ export function Dashboard() {
 
    const [eventData, setEventData] = useState<{ timestamp: string, event_name: string, severity: number }[]>([
     { timestamp: "2024/08/01 19:00", event_name: "Door Broken Into", severity: 2 },
-    { timestamp: "2024/08/01 19:04", event_name: "Loitering Detected", severity: 1 }
+    { timestamp: "2024/08/01 19:04", event_name: "Loitering Detected", severity: 1 },
+    { timestamp: "2024/08/01 19:04", event_name: "Humidity Level Exceeded", severity: 0 }
    ]);
 
    const handleResetWear = async (lockerId: string) => {
@@ -193,14 +195,21 @@ export function Dashboard() {
           </Stack>
         </Container>
         <Container>
-          <Paper withBorder shadow='xl' p="lg" h={'100%'}>
+          <Paper withBorder shadow='xl' p="lg" h={'98%'}>
             <Text className={classes.subheading}>Events</Text>
             <ScrollArea m={10}>
               {eventData.map(event => 
-                <Container style={{backgroundColor: event.severity == 2 ? 'red' : event.severity == 1 ? 'orange' : 'grey'}}>
-                  <p>Timestamp: {event.timestamp}</p>
-                  <p>Event name: {event.event_name}</p>
-                  <p>Severity: {event.severity}</p>
+                <Container 
+                className={event.severity == 2 ? classes.severity2: event.severity == 1 ? classes.severity1: classes.severity0}>
+                  <Group className={classes.eventStack} justify="space-between"> 
+                    <Group>
+                      {event.severity == 2 ? <IconAlertTriangle/> :
+                      event.severity == 1 ? <IconAlertSquareRounded/>:
+                      <IconAlertCircle/>}
+                      <text>{event.event_name}</text>
+                    </Group>
+                    <text>{event.timestamp}</text>
+                  </Group>
                 </Container>
               )}
             </ScrollArea>

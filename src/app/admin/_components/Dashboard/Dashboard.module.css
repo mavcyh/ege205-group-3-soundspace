@@ -21,4 +21,46 @@
 
 .graphContainer {
     margin-top: 50px;
-}   
+}
+
+.severity0 {   
+    min-width: 330px;
+    border: 1px solid darkgrey;
+    color: #45474B;
+    font-weight: bold;
+    font-size: 16px;
+    margin-bottom: 5px;
+    text-align: center;
+    line-height: 10px;
+    border-radius: 5px;
+    background-color: #F5F7F8;
+}
+
+.severity1 {  
+    border: 1px solid orange;
+    color: #EB5B00;
+    font-weight: bold;
+    font-size: 16px;
+    margin-bottom: 5px; 
+    text-align: center;
+    line-height: 10px;
+    border-radius: 5px;
+    background-color: #FFEDD8;
+}
+
+.severity2 {
+    border: 1px solid #C80036;
+    color: #973131;
+    font-weight: bold;
+    font-size: 16px;
+    margin-bottom: 5px;
+    text-align: center;
+    line-height: 10px;
+    border-radius: 5px;
+    background-color: #FFDFD6;
+}
+
+.eventStack {
+    margin-top: 20px;
+    margin-bottom: 20px;
+}
