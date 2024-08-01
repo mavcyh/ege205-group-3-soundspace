@@ -75,7 +75,6 @@ export const AdminBooking = ({instrumentData}: {instrumentData: Instrument[]}) =
     }
   }
 
-
     return (
       <Center>
           <Paper withBorder shadow="md" radius="md" className={classes.paper}>

@@ -1,7 +1,8 @@
 "use client"
 import { useForm } from '@mantine/form';
 import { PasswordInput, Flex, Button } from '@mantine/core';
-import classes from "./Passwordinput.module.css"
+import classes from './Passwordinput.module.css';
+import config from '@/config';
 
 
 type FormValues = {
@@ -14,7 +15,6 @@ export function Passwordinput() {
       initialValues: {
           password: '',
       },
-  
       validate: {
           password: (value) => (/^\d{6}$/.test(value) ? null : 'Password must be a 6 digit number.'),
       }
@@ -22,7 +22,7 @@ export function Passwordinput() {
 
     const handleSubmit = async (values: FormValues) => {
         try {
-        const response = await fetch('http://localhost:5000/admin/change-master-password', {
+        const response = await fetch(`http://${config.apiServerIp}:5000/admin/change-master-password`, {
             method: 'POST',
             headers: {
             'Content-Type': 'application/json',
@@ -46,7 +46,7 @@ export function Passwordinput() {
             <PasswordInput
                 className={classes.password}
                 label="Set Master Password"
-                placeholder="Enter master password"
+                placeholder="Enter new master password"
                 size='lg'
                 required
                 {...form.getInputProps('password')}
@@ -54,5 +54,5 @@ export function Passwordinput() {
             <Flex justify="flex-end">
                 <Button type="submit" className={classes.button}>Confirm</Button>
             </Flex>
-        </form>       
+        </form>
 )}
