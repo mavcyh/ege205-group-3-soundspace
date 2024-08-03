@@ -1,24 +1,38 @@
 from apscheduler.schedulers.background import BackgroundScheduler
-import random
-from flask_app.socketio_events.bbbw import bbbwSessionInfo_updateVolumeLevel, bbbwMiscellanous_updateRoomState, update_room_data, change_temporary_password
+from flask_app.socketio_events.bbbw import bbbwSessionInfo_updateVolumeLevel, bbbwMiscellanous_updateRoomState, update_room_data
 from flask_app import app, socketio
 from datetime import datetime, timezone
-from flask_app.database.crud import update_instrument_wear_values, get_session_active_core, update_event, update_temporary_password, get_volume_limit, get_booked_lockers
+from flask_app.database.crud import get_session_active_core, update_event, update_temporary_password, get_volume_limit, get_booked_lockers
+from flask_app.socketio_events.bbbw import loitering_detected_trip, instrument_missing_trip
 
 scheduler = BackgroundScheduler()
 
-
-volume_limit = {
-    "00:00": 5,
-    "07:00": 7,
-    "10:00": 8,
-    "14:00": 9,
-    "20:00": 6,
-}
-
-def check_session():
+def core_per_two_minutes():
+    global loitering_detected_trip, instrument_missing_trip
     with app.app_context():
-        current_volume_limit = get_volume_limit(volume_limit)
+        event = "wear_exceeded"
+        update_event(event, "", None)
+    if loitering_detected_trip:
+        event = "loitering"
+        update_event(event, "Loitering Detected!", 1)
+        loitering_detected_trip = False
+    for locker_id in instrument_missing_trip:
+        event = "instrument_missing"
+        update_event(event, f"Missing instrument (Locker {locker_id})", 2)
+
+def core_per_minute():
+    print("CORE PER MINUTE:")
+    with app.app_context():
+        # bbbwRoomDoor
+        temp_password = update_temporary_password()
+        TxData = {
+            "temporary_password": temp_password,
+        }
+        socketio.emit("serverToRoomDoor_updateTemporaryPassword", TxData)
+        print(f"Updated temporary password: {temp_password}")
+        
+        # bbbwSessionInfo & bbbwMiscellanous
+        current_volume_limit = get_volume_limit()
         vol_limit = {"maximum_volume_level": current_volume_limit}
         socketio.emit("serverToSessionInfo_updateMaximumVolumeLevel", vol_limit)
         unlocked_lockers = get_booked_lockers()
@@ -28,50 +42,22 @@ def check_session():
             remaining_time_seconds = int((end_datetime - current_time).total_seconds())
             TxData = {"unlocked_locker_ids": unlocked_lockers,
                       "session_duration": remaining_time_seconds}
-            socketio.emit("serverToSessionInfo_updateSession", TxData)
-            print(f"Remaning time (seconds): {remaining_time_seconds}")
+            socketio.emit("serverToInstrumentLocker_updateLockers", TxData)
+            socketio.emit("serverToMiscellanous_connected", {"session_active": True})
+            print(f"Remaining session duration: {remaining_time_seconds}s")
+            print(f"Unlocked lockers {TxData["unlocked_locker_ids"]}.")
         else:
-            remaining_time_seconds = None
-
-def check_wear_exceeded():
-    with app.app_context():
-        event = "wear_exceeded"
-        update_event(event, "", None)
-
-def core_per_second():
-    with app.app_context():
-        global simulated_humidity_level
-
-        start_datetime, end_datetime = get_session_active_core()
-        session_status = True if start_datetime and end_datetime else False
-        socketio.emit("serverToMiscellanous_connected", {"session_active": session_status})
-
-        update_instrument_wear_values()   
-        TxData = {
-            "humidity_level": random.randint(50, 60),
-            "motion_detected": False
-        }   
-        bbbwMiscellanous_updateRoomState(TxData)
-
-        event_time_stamp = datetime.now(timezone.utc).strftime('%Y-%m-%dT%H:%M')
-        simulated_volume_level = random.randint(0, 30)
-        data = {'volume_level': simulated_volume_level, 'time_stamp': event_time_stamp}
-        # Simulates a socketio event emitted from bbbw_SessionInfo
-        bbbwSessionInfo_updateVolumeLevel(data)
-
+            TxData = {"unlocked_locker_ids": [],
+                      "session_duration": None}
+            socketio.emit("serverToInstrumentLocker_updateLockers", TxData)
+            socketio.emit("serverToMiscellanous_connected", {"session_active": False})
+            print(f"No session active.")
         update_room_data()
-        temp_password = update_temporary_password() 
-        change_temporary_password(temp_password)
+        print("END OF CORE PER MINUTE")
+            
 
-# Schedule check_session to run every minute
-scheduler.add_job(check_session, 'cron', minute='*')
+scheduler.add_job(core_per_minute, 'cron', minute='*')
 
-# Check if the wear_value has exceeded every 30 minutes
-scheduler.add_job(check_wear_exceeded, 'cron', minute='*/30')
-
-# Schedule core_per_second to run every second
-scheduler.add_job(core_per_second, 'cron', second='*')
+scheduler.add_job(core_per_two_minutes, 'cron', minute='*/2')
 
 scheduler.start()
-
-# check_session()

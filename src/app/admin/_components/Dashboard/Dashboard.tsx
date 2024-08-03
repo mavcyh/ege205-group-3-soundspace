@@ -49,11 +49,7 @@ export function Dashboard() {
             "Content-Type": "application/json",
           },
         });
-        let newHumidityData : { time_stamp: string, humidity_data: number }[] = await humidityDataResponse.json();
-        newHumidityData.forEach(humidity => {
-          const [hour, minutes] = humidity.time_stamp.split(':');
-          humidity.time_stamp = `${(24 % (parseInt(hour) + 8)).toString().padStart(2, '0')}:${minutes}`
-        })
+        const newHumidityData : { time_stamp: string, humidity_data: number }[] = await humidityDataResponse.json();
         setHumidityData(newHumidityData);
         
         // Getting room data
@@ -72,7 +68,7 @@ export function Dashboard() {
         setRoomData(newRoomData);
         
         // Getting volume data
-        const volumeDataResponse : any = await fetch(`http://${config.apiServerIp}:5000/admin/current-session-volume-data`, {
+        const volumeDataResponse : any = await fetch(`http://${config.apiServerIp}:5000/admin/session-volume-data`, {
           method: "POST",
           headers: {
             "Content-Type": "application/json",
@@ -94,7 +90,7 @@ export function Dashboard() {
           event_name: string,
           severity: number
         }[] = await eventDataResponse.json();
-        setEventData([...eventData, ...newEventData]);
+        setEventData(newEventData);
       }
       catch (error) {
         console.log(`Error connecting to API: ${error}`);
@@ -115,7 +111,7 @@ export function Dashboard() {
     <Center>
       <Flex justify={'center'} align={'stretch'} pt={30}>
         <Container>
-          <Stack style={{ flex: 1 }}>
+          <Stack mb={'-md'}>
             <Paper withBorder shadow="xl" p="lg">
               <Flex justify="space-between">
                 <Text className={classes.subheading}>Room Status</Text>
@@ -146,7 +142,7 @@ export function Dashboard() {
                   yAxisProps={{domain: ['50', 'dataMax + 10']}}
                 />
                 <Text className={classes.graphheading}>Volume Graph</Text>
-                {volumeData.length == 0 ? <Text>No Session Active</Text> :
+                {volumeData.length == 0 ? <Center><Text c={'gray'}>No Session Active</Text></Center>:
                 <AreaChart
                   pr={30}
                   h={350}
@@ -187,9 +183,9 @@ export function Dashboard() {
           </Stack>
         </Container>
         <Container>
-          <Paper withBorder shadow='xl' p="lg" h={'98%'}>
+          <Paper withBorder shadow='xl' p="lg" h={'100%'}>
             <Text className={classes.subheading}>Events</Text>
-            <ScrollArea m={10}>
+            <ScrollArea m={10} bd={'xs'} miw={300}>
               {eventData.map(event => 
                 <Container 
                 className={event.severity == 2 ? classes.severity2: event.severity == 1 ? classes.severity1: classes.severity0}>

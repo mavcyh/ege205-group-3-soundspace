@@ -14,7 +14,7 @@ from board import SCL, SDA
 from PIL import Image, ImageDraw, ImageFont
 import socketio
 
-SERVER_IP_ADDRESS = "192.168.X.X"
+SERVER_IP_ADDRESS = "192.168.124.13"
 
 # Turn off USR LEDs
 GPIO.setup("USR0", GPIO.OUT)
@@ -88,7 +88,7 @@ def update_OLED(seconds=0, status=None, end=False):
 
 # S3: Buzz initialisation (Alarm for volume related penalties)
 BUZZ_PIN = "P8_19"
-buzz_volume = 0.3
+buzz_volume = 1
 
 def buzz_control(repeat=0, active_time=0, period=0):
     if repeat < 0:
@@ -104,9 +104,8 @@ def buzz_control(repeat=0, active_time=0, period=0):
     buzz_active_timer = threading.Timer(active_time, PWM.stop, [BUZZ_PIN])
     buzz_active_timer.start()
 
-
-# S4: Mic initialisation (Detection of volume level)
-MIC_PIN = "P9_39"
+# S3: Mic initialisation (Detection of volume level)
+MIC_PIN = "P9_40"
 ADC.setup()
 
 database = {
@@ -152,7 +151,7 @@ while True:
 
 # FUNCTIONS
 
-MIC_MINIMUM_VALUE = 0.009035409428179264
+MIC_MINIMUM_VALUE = 0.008791209198534489
 MIC_MAXIMUM_VALUE = 0.010989011265337467
 def update_volume_level_total():
     if not database["session_active"]:
@@ -165,7 +164,7 @@ def update_volume_level_total():
     volume_level = ((raw_mic_value - MIC_MINIMUM_VALUE) / (MIC_MAXIMUM_VALUE - MIC_MINIMUM_VALUE) * 10)
     if volume_level < 0:
         volume_level = 0
-    print(f"RAW VALUE: {raw_mic_value}, VOLUME LEVEL: {volume_level: .2f}")
+    print(f"RAW VALUE: {raw_mic_value}, VOLUME LEVEL: {volume_level: .2f}, LIMIT {database['maximum_volume_level']}")
     database["volume_level_total"] += volume_level
     database["volume_level_count"] += 1
 
@@ -185,6 +184,8 @@ def update_average_volume_level():
         database["volume_level_total"] = 0
         database["volume_level_count"] = 0
         database["last_average_volume_level"] = average_volume_level
+        if average_volume_level > database["maximum_volume_level"]:
+            buzz_control(repeat=3, active_time=0.7, period=1)
 
 def update_session_info():
     if datetime.datetime.now().second != database["current_datetime_second"]:
@@ -224,7 +225,7 @@ def serverToSessionInfo_connected(data):
     if session_duration_left != None:
         serverToSessionInfo_updateSession({"session_duration": session_duration_left})
     database["maximum_volume_level"] = data["maximum_volume_level"]
-    
+
 @sio.event
 def serverToSessionInfo_updateSession(data):
     # Finds datetime of end of session (accurate for BBBW) using length of session in seconds
@@ -235,16 +236,10 @@ def serverToSessionInfo_updateSession(data):
         update_average_volume_level()
         update_session_info()
 
-@sio.event
-def serverToSessionInfo_updateMaximumVolumeLevel(data):
-    database["maximum_volume_level"] = data["maximum_volume_level"]
-
-@sio.event
-def serverToSessionInfo_maximumVolumeExceeded(data):
-    print("Volume level exceeded maximum.")
 
 # MAIN LOGIC
 
+barGraph_control(0)
 update_OLED(end=True)
 
 while True:

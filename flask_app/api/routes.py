@@ -64,12 +64,8 @@ class admin_humidity_data(Resource):
     def get(self):
         return get_humidity_data()
 
-# @nsAdmin.route("/session-volume-data")
-# class admin_session_volume_data(Resource):
-# # Return an array of all the volume data
-
-@nsAdmin.route("/current-session-volume-data")
-class admin_current_session_volume_data(Resource):
+@nsAdmin.route("/session-volume-data")
+class admin_session_volume_data(Resource):
     @nsApi.expect(get_booking_start_datetime)
     @nsApi.marshal_list_with(volume_model)
     def post(self):
@@ -100,15 +96,6 @@ class room_data(Resource):
     @nsApi.marshal_list_with(room_data_model)
     def get(self):
         return roomData
-@nsAdmin.route("/instrument-data")
-class admin_instrument_data(Resource):
-    def get(self):
-        return None
-
-@nsAdmin.route("/bookings")
-class admin_bookings(Resource):
-    def get(self):
-        return None
 
 @nsAdmin.route("/get-locker-wear")
 class admin_get_locker_wear(Resource):
@@ -131,9 +118,8 @@ class admin_change_master_password(Resource):
         new_master_password = nsApi.payload["new_master_password"]
         print(f"New master password: {new_master_password}")
         TxData = {
-            "new_master_password": new_master_password
+            "master_password": new_master_password
         }
         socketio.emit("serverToRoomDoor_updateMasterPassword", TxData)
-
 
 #endregion ADMIN PAGE

@@ -72,7 +72,9 @@ export const AdminBooking = ({instrumentData}: {instrumentData: Instrument[]}) =
         console.error("Error creating booking.", error);
         setErrorMessage("An error occurred while creating the booking.");
         setCreateBookingLoading(false);
+        return
     }
+    setCreateBookingLoading(false);
   }
 
     return (

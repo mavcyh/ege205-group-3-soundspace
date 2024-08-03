@@ -6,6 +6,7 @@ import time
 from Adafruit_BBIO.SPI import SPI
 import Adafruit_BBIO.GPIO as GPIO
 import Adafruit_BBIO.PWM as PWM
+import adafruit_vcnl4010
 import board
 import busio
 import digitalio
@@ -14,7 +15,7 @@ from board import SCL, SDA
 from PIL import Image, ImageDraw, ImageFont
 import socketio
 
-SERVER_IP_ADDRESS = "192.168.X.X"
+SERVER_IP_ADDRESS = "192.168.124.13"
 
 # Turn off USR LEDs
 GPIO.setup("USR0", GPIO.OUT)
@@ -63,18 +64,17 @@ def update_OLED(status=None, instrument_name=None):
     if status:
         Draw.text((oled_x_offset(status), 12), " " + status, font=Font, fill=1)
     if instrument_name:
-        pass
-    Draw.text((oled_x_offset(instrument_name), 20), " " + instrument_name, font=Font, fill=1)
+        Draw.text((oled_x_offset(instrument_name), 20), " " + instrument_name, font=Font, fill=1)
     Display.image(ImageObj)
     Display.show()
 
-# S3: Tamper initialisation (Instrument inside/ outside detection)
-TAMPER_PIN = "P8_18"
-GPIO.setup(TAMPER_PIN, GPIO.IN)
-
-# S4: Reed initialisation (Door opened/ closed detection)
+# S3: Reed initialisation (Door opened/ closed detection)
 REED_PIN = "P8_10"
 GPIO.setup(REED_PIN, GPIO.IN)
+
+# S4: Tamper initialisation (Instrument inside/ outside detection)
+i2c = board.I2C()
+proxSensor = adafruit_vcnl4010.VCNL4010(i2c)
 
 
 database = {
@@ -83,6 +83,7 @@ database = {
     "instrument_name": None,
     "session_end_datetime": None
 }
+
 sio = socketio.Client()
 @sio.event
 def connect():
@@ -114,14 +115,20 @@ while True:
 
 
 # FUNCTIONS
-def door_closed_change(door_closed):
+def door_closed_change():
     pass
-
-def instrument_in_change(instrument_in):
-    if instrument_in:
-        barGraph_colour_control("GREEN")
+    
+def instrument_in_change():
+    if not database["locker_locked"]:
+        barGraph_colour_control("GREEN" if instrument_in else "YELLOW")
+        
+        TxData = {
+            "locker_id": database["INSTRUMENT_LOCKER_NUMBER"],
+            "usage": not instrument_in
+        }
+        sio.emit("bbbwInstrumentLocker_Usage", TxData)
     else:
-        barGraph_colour_control("YELLOW")
+        barGraph_colour_control("RED")
 
 
 # SOCKETIO EVENTS
@@ -129,27 +136,38 @@ def instrument_in_change(instrument_in):
 @sio.event
 def serverToInstrumentLocker_connected(data):
     if database["INSTRUMENT_LOCKER_NUMBER"] in data:
-        database["locker_locked"] = data["locker_locked"]
-        instrument_name = data[database["INSTRUMENT_LOCKER_NUMBER"]]["instrument_name"]
-        database["instrument_name"] = instrument_name
-        update_OLED("LOCKED" if database["locker_locked"] else "UNLOCKED", instrument_name)
+        database["instrument_name"] = data[database["INSTRUMENT_LOCKER_NUMBER"]]
+        update_OLED(status=None, instrument_name=database["instrument_name"])
 
 @sio.event
 def serverToInstrumentLocker_updateLockers(data):
-    # Finds datetime of end of session (accurate for BBBW) using length of session in seconds
-    database["session_end_datetime"] = datetime.datetime.now() + timedelta(seconds=data["session_duration"])
-
-
+    if database["INSTRUMENT_LOCKER_NUMBER"] in data["unlocked_locker_ids"]:
+        database["locker_locked"] = False
+        update_OLED(status="UNLOCKED", instrument_name=database["instrument_name"])
+        barGraph_colour_control("GREEN" if instrument_in else "YELLOW")
+    else:
+        database["locker_locked"] = True
+        update_OLED(status="LOCKED", instrument_name=database["instrument_name"])
+        barGraph_colour_control("RED")
+        
+        
 # MAIN LOGIC
 
 door_closed = GPIO.input(REED_PIN)
-instrument_in = GPIO.input(TAMPER_PIN)
+proxThreshold = 10000
+instrument_in = proxSensor.proximity > proxThreshold
+door_closed_change()
+instrument_in_change()
 
 while True:
-    if door_closed != GPIO.input(REED_PIN):
-        door_closed = not door_closed
-        door_closed_change(door_closed)
-    if instrument_in != GPIO.input(TAMPER_PIN):
-        instrument_in = not instrument_in
-        instrument_in_change(instrument_in)
+    proximity_value = proxSensor.proximity
+    current_door_closed = GPIO.input(REED_PIN)
+    print(proximity_value)
+    if door_closed != current_door_closed:
+        door_closed = current_door_closed
+        door_closed_change()
+    if instrument_in != (proximity_value > proxThreshold):
+        instrument_in = proximity_value > proxThreshold
+        print(f"proximity_value > proxThreshold {proximity_value > proxThreshold}")
+        instrument_in_change()
     time.sleep(0.1)

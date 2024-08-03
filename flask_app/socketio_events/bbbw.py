@@ -1,6 +1,8 @@
 from flask import request
 from flask_app import socketio
-from flask_app.database.crud import write_volume_level_data, update_event, insert_humidity_data, get_instrument_data, get_session_active, get_all_instrument_names
+from flask_app.database.crud import *
+from datetime import datetime, timezone
+
 roomData = {
     "room_door_status": None,
     "instrument_data": [],
@@ -10,6 +12,7 @@ roomData = {
 
 def update_room_data():
     roomData["instrument_data"] = get_instrument_data()
+    
 #region SOCKETIO EVENTS
 
 #region bbbwRoomDoor
@@ -25,40 +28,49 @@ def bbbwRoomDoor_DoorState(data):
         roomData["room_door_status"] = "BROKEN INTO"
         event = "door_broken_into"
         update_event(event, "Door Broken into!", 2) # event, event name, severity
-
-def change_temporary_password(temp_password):
-    TxData = {
-    "temporary_password": temp_password,
-    }
-    socketio.emit("serverToRoomDoor_updateTemporaryPassword", TxData)
+    print(f"DOOR {data['door_state']}")
+    
 #endregion bbbwRoomDoor
-
 
 
 #region bbbwInstrumentLocker
 
+instrument_missing_trip = []
+@socketio.event
+def bbbwInstrumentLocker_Usage(data):
+    global instrument_missing_trip
+    for index, instrument in enumerate(roomData["instrument_data"]):
+        if instrument["locker_id"] == data["locker_id"]:
+            roomData["instrument_data"][index]["usage"] = data["usage"]
+            return
+    start_datetime, end_datetime = get_session_active()
+    if data["usage"] and not end_datetime:
+        instrument_missing_trip.append(data["locker_id"])
+        
 #endregion bbbwInstrumentLocker
 
+
 #region bbbwSessionInfo
+
 @socketio.event
 def bbbwSessionInfo_updateVolumeLevel(data):
     if data["volume_level"] >= 10:
-        TxData = {}
-        socketio.emit("serverToSessionInfo_maximumVolumeExceeded", TxData)
-    write_volume_level_data(data["time_stamp"],[data["volume_level"]])
+        socketio.emit("serverToSessionInfo_maximumVolumeExceeded", {})
+    write_volume_level_data(data["volume_level"])
+    print(f"Volume level: {data["volume_level"]}")
 
 #endregion bbbwSessionInfo
 
+
 #region bbbwMiscellanous
 
+loitering_detected_trip = False
 @socketio.event
 def bbbwMiscellanous_updateRoomState(data):
-    print(f"Humidity Level: {data["humidity_level"]}%")
-    print("Motion Detected" if data["motion_detected"] else "Motion Not Detected")
+    global loitering_detected_trip
     insert_humidity_data(data["humidity_level"])
     if data["motion_detected"] == True:
-        event = "loitering"
-        update_event(event, "Loitering Detected!", 1)
+        loitering_detected_trip = True
         start_datetime, end_datetime = get_session_active()
         if start_datetime and end_datetime:
             roomData["loitering_detected"] = False
@@ -90,7 +102,6 @@ connected_bbbw_session_id = {
 }
 
 
-
 @socketio.event
 def bbbw_connected(data):
     # Adds session id of connected BBBW to connected_bbbw_session_id.
@@ -102,43 +113,48 @@ def bbbw_connected(data):
     else:
         connected_bbbw_session_id[data["bbbw_role"]] = str(request.sid)
         print(f"bbbw{bbbw_role} CONNECTED")
+        
     # Emit SocketIO event based on device connected
-    pack_up_duration = 30
-    leave_duration = 30
     match bbbw_role:
         case "RoomDoor":
+            temp_password = update_temporary_password()
             TxData = {
-                "master_password": "111111",
-                "temporary_password": "123412",
+                "temporary_password": temp_password,
             }
-            socketio.emit("serverToRoomDoor_updatePasswords ", TxData)
+            socketio.emit("serverToRoomDoor_updateTemporaryPassword", TxData)
             
         case "InstrumentLocker":
-            
-            TxData = {
-                data["instrument_locker_number"]: {
-                    "pack_up_duration": pack_up_duration,
-                    "leave_duration": leave_duration,
-                    "session_duration_left": None,
-                    "locker_locked": False,
-                    "instrument_name": "Fender Bass"
-                }
-            }
+            vol_limit = get_volume_limit()
+            start_datetime, end_datetime = get_session_active_core()
+            if end_datetime:
+                current_time = datetime.now(timezone.utc)
+                remaining_time_seconds = int((end_datetime - current_time).total_seconds())
+            else:
+                remaining_time_seconds = None
             TxData = get_all_instrument_names()
             socketio.emit("serverToInstrumentLocker_connected", TxData)
-        
+            TxData = {"unlocked_locker_ids": get_booked_lockers(),
+                      "session_duration": remaining_time_seconds}
+            socketio.emit("serverToInstrumentLocker_updateLockers", TxData)
+            
         case "SessionInfo":
+            vol_limit = get_volume_limit()
+            start_datetime, end_datetime = get_session_active_core()
+            if end_datetime:
+                current_time = datetime.now(timezone.utc)
+                remaining_time_seconds = int((end_datetime - current_time).total_seconds())
+            else:
+                remaining_time_seconds = None
             TxData = {
-                "pack_up_duration": pack_up_duration,
-                "leave_duration": leave_duration,
-                "session_duration_left": None,
-                "maximum_volume_level": 10,
+                "session_duration_left": remaining_time_seconds,
+                "maximum_volume_level": vol_limit,
             }
             socketio.emit("serverToSessionInfo_connected", TxData)
             
         case "Miscellanous":
+            start_datetime, end_datetime = get_session_active()
             TxData = {
-                "session_active": True,
+                "session_active": True if end_datetime else False,
             }
             socketio.emit("serverToMiscellanous_connected", TxData)
 

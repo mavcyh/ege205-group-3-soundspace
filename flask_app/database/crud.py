@@ -86,19 +86,22 @@ def update_temporary_password():
     now = datetime.now(timezone.utc)
     start_datetime, end_datetime = get_session_active()
     if start_datetime and end_datetime:
-        start_datetime = datetime.fromisoformat(start_datetime).replace(tzinfo=timezone.utc)
-        just_started_threshold = timedelta(seconds=1)
-        
-        # Check if the session start time is within the just started threshold
-        if abs((now - start_datetime).total_seconds()) <= just_started_threshold.total_seconds():
-            temporary_password = str(random.randint(0, 999999)).zfill(6)
-            start_datetime = start_datetime.strftime('%Y-%m-%dT%H:%M')
-            session = Booking.query.filter_by(start_datetime=start_datetime).first()
-            session.temporary_password = temporary_password
-            db.session.commit()
-            return session.temporary_password
+        start_datetime = datetime.fromisoformat(start_datetime).strftime('%Y-%m-%dT%H:%M')
+        session = Booking.query.filter_by(start_datetime=start_datetime).first()
+        return session.temporary_password
+    else:
+        return ""
 
-def get_volume_limit(volume_limit):
+def get_volume_limit():
+    volume_limit = {
+        "00:00": 6,
+        "07:00": 8,
+        "10:00": 10,
+        "20:00": 8,
+        "22:00": 7,
+        "23:00": 6,
+    }
+    
     # Convert dictionary keys to a sorted list of times
     sorted_times = sorted(volume_limit.keys(), key=lambda x: datetime.strptime(x, "%H:%M").time())
     
@@ -121,13 +124,14 @@ def get_volume_limit(volume_limit):
     last_time_slot = sorted_times[-1]
     return volume_limit[last_time_slot]
 
-def write_volume_level_data(time_stamp, volume_data):
-    volume_limit_data = get_volume_limit(volume_limit)
+def write_volume_level_data(volume_data):
+    current_time_utc = datetime.now(timezone.utc).strftime('%Y-%m-%dT%H:%M') 
+    volume_limit_data = get_volume_limit()
     volume_data_json = json.dumps(volume_data).strip('[]')
     start_datetime, end_datetime = get_session_active()
 
     if start_datetime and end_datetime:
-        new_volume = Volume(time_stamp=time_stamp, volume_data=volume_data_json, volume_limit=volume_limit_data)
+        new_volume = Volume(time_stamp=current_time_utc, volume_data=volume_data_json, volume_limit=volume_limit_data)
         db.session.add(new_volume)  
 
     db.session.commit()
@@ -149,19 +153,22 @@ def delete_specific_booking():
 def get_volume_data_by_start_datetime(start_datetime):
     if start_datetime == "":
         start_datetime_obj, end_datetime_obj = get_session_active()
-        if not start_datetime_obj or not end_datetime_obj:
+        if not end_datetime_obj:
             return []
-
+        
     else:
         start_datetime_obj = format_datetime(start_datetime)
         booking = Booking.query.filter_by(start_datetime=start_datetime_obj).first()
         end_datetime_obj = format_datetime(booking.end_datetime)
 
+    
+    
     # Filter volumes that fall within the booking period
     volumes = Volume.query.filter(
-        (Volume.time_stamp >=  start_datetime_obj) &
+        (Volume.time_stamp >= start_datetime_obj) &
         (Volume.time_stamp <= end_datetime_obj)
     ).all()
+    
     
     
     volume_data_list = []
@@ -229,6 +236,7 @@ def get_booked_lockers():
         return booked_locker_ids
     return []
 
+
 def get_all_instrument_names():
     instruments = db.session.query(Instrument).all()
     tx_data = {}
@@ -290,7 +298,7 @@ def get_booking_availability_and_instruments():
 
 def insert_instrument_data():
     data = [
-        ("1", "Fender Stratocaster", 21.90, 2.50),
+        ("1", "Fender Vintera", 21.90, 2.50),
         ("2", "Ibanez SR300E", 11.90, 1.50)
     ]
     
@@ -347,17 +355,21 @@ def get_humidity_data():
     for record in all_data:
         # Extract the record's time_stamp
         record_time_str = record.time_stamp
-
+        
         # Convert record's time_stamp to a datetime object for comparison
         # Assuming the record's date is today's date
+        
         record_time = datetime.combine(now.date(), datetime.strptime(record_time_str, '%H:%M').time(), tzinfo=timezone.utc)
-
+        singapore_datetime = record_time.astimezone(pytz.timezone('Asia/Singapore'))
+        formatted_datetime = singapore_datetime.strftime('%H:%M')
+        
         # Compare the record's datetime with the time two hours ago
         if record_time >= two_hours_ago:
             filtered_data.append({
-                'time_stamp': record.time_stamp,
+                'time_stamp': formatted_datetime,
                 'humidity_data': record.humidity
             })
+        print(filtered_data)
     return filtered_data
 
 
@@ -386,7 +398,7 @@ def update_instrument_wear_values():
     
     if not humidity_data:
         # If there's no humidity data, use a default or fallback value
-        current_humidity = 0
+        current_humidity = 60
     else:
         # Assume you want the most recent humidity value
         current_humidity = humidity_data[-1]['humidity_data']
@@ -403,21 +415,21 @@ def update_instrument_wear_values():
         for locker_id in booked_instrument_ids:
             instrument = Instrument.query.filter_by(locker_id=locker_id).first()
             if instrument:
-                instrument.wear_value += Decimal(0.5 + wear_increment)  # Increase wear value by 0.5 for in-use instruments
+                instrument.wear_value += Decimal(4 * wear_increment)  # Increase wear value by 0.5 for in-use instruments
                 db.session.commit()
                 print(f"Instrument wear value: {instrument.wear_value}")
         
         # Update wear value for instruments not booked during the active session
         non_booked_instruments = Instrument.query.filter(Instrument.locker_id.notin_(booked_instrument_ids)).all()
         for instrument in non_booked_instruments:
-            instrument.wear_value += Decimal(0.1)   # Increase wear value by 0.1 for non-active instruments
+            instrument.wear_value += Decimal(0.5 * wear_increment)   # Increase wear value by 0.1 for non-active instruments
             db.session.commit()
 
     else:
         # If no active session, update wear value for all instruments
         all_instruments = Instrument.query.all()
         for instrument in all_instruments:
-            instrument.wear_value += Decimal(0.1)   # Increase wear value by 0.1 for non-active instruments
+            instrument.wear_value += Decimal(0.5 * wear_increment)   # Increase wear value by 0.1 for non-active instruments
             db.session.commit()
 
 def update_event(event, event_name, severity):
@@ -432,18 +444,17 @@ def update_event(event, event_name, severity):
             db.session.commit()
 
     if event == "dropped":
-        if start_datetime and end_datetime:
-            update_dropped = Events(timestamp=datetime_str, event_names=event_name , severity=severity)    
-            db.session.add(update_dropped)
-            ongoing_booking = Booking.query.filter(
-                Booking.start_datetime == start_datetime,
-                Booking.end_datetime == end_datetime
-            ).first()
+        update_dropped = Events(timestamp=datetime_str, event_names=event_name , severity=severity)    
+        db.session.add(update_dropped)
+        ongoing_booking = Booking.query.filter(
+            Booking.start_datetime == start_datetime,
+            Booking.end_datetime == end_datetime
+        ).first()
 
-            if ongoing_booking:
-                # Update the device_dropped field to True(1)
-                ongoing_booking.device_dropped = True
-                db.session.commit()
+        if ongoing_booking:
+            # Update the device_dropped field to True(1)
+            ongoing_booking.device_dropped = True
+            db.session.commit()
 
     if event == "door_broken_into":
         if start_datetime is None and end_datetime is None:
@@ -489,6 +500,11 @@ def update_event(event, event_name, severity):
             db.session.add(new_event)
             db.session.commit()
 
+    if event == "instrument_missing":
+        new_event = Events(timestamp=datetime_str, event_names=event_name, severity=severity)
+        db.session.add(new_event)
+        db.session.commit()
+        
 def get_event():
     # Query all events from the database
     events = Events.query.all()
@@ -519,13 +535,3 @@ def get_event():
         event_list.append(event_dict)
 
     return event_list
-
-def coded_booking():
-    # Define hardcoded parameters
-    start_datetime = "2024-07-31T09:47:00.000Z"
-    end_datetime = "2024-07-31T14:00:00.000Z"
-    locker_ids = ["1"]  # Example locker IDs
-    email = "example@example.com"
-    temporary_password = str(random.randint(0, 999999)).zfill(6)
-    # Use the create_booking function to insert the booking
-    create_booking(start_datetime, end_datetime, locker_ids, email, temporary_password)

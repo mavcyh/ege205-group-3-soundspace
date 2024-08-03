@@ -59,7 +59,7 @@ instrument_roomData_model = nsApi.model("InstrumentData", {
 
 room_data_model = nsApi.model("RoomData", {
     "room_door_status": fields.String,
-    "instrument_data": fields.Nested(instrument_roomData_model),
+    "instrument_data": fields.List(fields.Nested(instrument_roomData_model)),
     "loitering_detected": fields.Boolean,
     "item_dropped": fields.Boolean
 })
@@ -67,7 +67,8 @@ room_data_model = nsApi.model("RoomData", {
 instrument_data_model = nsApi.model("InstrumentData", {
     "locker_id": fields.String,
     "instrument_name": fields.String,
-    "price_per_hour": fields.Float
+    "price_per_hour": fields.Float,
+    "usage": fields.Boolean
 })
 
 

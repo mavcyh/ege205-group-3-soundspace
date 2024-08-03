@@ -10,7 +10,7 @@ import adafruit_lsm9ds1
 import digitalio
 import socketio
 
-SERVER_IP_ADDRESS = "192.168.X.X"
+SERVER_IP_ADDRESS = "192.168.124.13"
 
 # Turn off USR LEDs
 GPIO.setup("USR0", GPIO.OUT)
@@ -28,12 +28,13 @@ i2c = board.I2C()
 bme680 = adafruit_bme680.Adafruit_BME680_I2C(i2c, 0x77)
 
 # S2: Motion initialisation (detection of motion in room)
-MOTION_PIN = "P8_18"
+MOTION_PIN = "P9_15"
 GPIO.setup(MOTION_PIN, GPIO.IN)
 
 # S3: 9DOF initialisation (detection of equipment drops)
 lsm9ds1 = adafruit_lsm9ds1.LSM9DS1_I2C(i2c, 0x1C, 0x6A)
 
+# S3: Buzz initialisation (door break in alarm)
 BUZZ_PIN = "P9_16"
 BUZZ_VOLUME = 1
 
@@ -56,8 +57,9 @@ database = {
     "locker_locked": True,
     "instrument_name": None,
     "session_end_datetime": None,
-    "session_active": "Inactive"
+    "session_active": None
 }
+
 sio = socketio.Client()
 @sio.event
 def connect():
@@ -86,16 +88,19 @@ while True:
                 time.sleep(0.25)
         print("\n")
 
+
 # FUNCTIONS
 
 scheduler = sched.scheduler(time.time, time.sleep)
 
+motion_detected = None
 def update_room_state():
+    global motion_detected
     scheduler.enter(1, 1, update_room_state)
-    humidity_level = int(bme680.relative_humidity)
+    motion_detected = GPIO.input(MOTION_PIN)
     TxData = {
-        "humidity_level": humidity_level,
-        "motion_detected": GPIO.input(MOTION_PIN)
+        "humidity_level": int(bme680.relative_humidity),
+        "motion_detected": motion_detected
     }
     sio.emit("bbbwMiscellanous_updateRoomState", TxData)
     
@@ -105,6 +110,7 @@ def update_room_state():
 @sio.event
 def serverToMiscellanous_connected(data):
     database["session_active"] = data["session_active"]
+    print("Session active." if database["session_active"] else "No session active.")
 
 
 # MAIN LOGIC
@@ -114,13 +120,11 @@ scheduler_thread = threading.Thread(target=scheduler.run)
 scheduler_thread.start()
 
 while True:
-    if GPIO.input(MOTION_PIN):
-        if database["session_active"] == False:
-            buzz_control(repeat = 1, active_time = 0.8)
-        if database["session_active"] == True:
-            buzz_control(repeat = -1)
-
-    device_dropped = False
+    if motion_detected:
+        buzz_control(repeat = -1 if database["session_active"] else 0)
+    else:
+        buzz_control(repeat = -1)
+        
     for i in range(5):
         x, y, z = lsm9ds1.acceleration
         ix = x
@@ -130,7 +134,5 @@ while True:
         x, y, z = lsm9ds1.acceleration
         accel_change = math.sqrt(((ix-x)**2 + (iy-y)**2 + (iz-z)**2))
         if accel_change > 10:
-            device_dropped = True
-        print(accel_change)
-    if device_dropped:
-        sio.emit("bbbwMiscellanous_deviceDropped")
+            sio.emit("bbbwMiscellanous_deviceDropped")
+        # print(accel_change)

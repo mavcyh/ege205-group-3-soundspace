@@ -6,7 +6,7 @@ from flask_cors import CORS
 from flask_restx import Api, Namespace, fields
 
 app = Flask(__name__)
-socketio = SocketIO(app, async_mode="eventlet")
+socketio = SocketIO(app, async_mode="eventlet", ping_interval=1000, pingTimeout=5000)
 app.config['SQLALCHEMY_DATABASE_URI'] = "sqlite:///db.sqlite3"
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 db = SQLAlchemy(app)
