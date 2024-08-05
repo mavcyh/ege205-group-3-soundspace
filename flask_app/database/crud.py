@@ -1,9 +1,8 @@
 from flask import json, jsonify
-from flask_app import app, db
+from flask_app import db
 from flask_app.database.models import Booking, Instrument, Volume, Events, Humidity, booking_instrument
 from datetime import datetime, timezone, timedelta
 from decimal import Decimal
-import random
 import pytz
 
 volume_limit = {
@@ -270,7 +269,7 @@ def get_instrument_data():
 def get_booking_availability_and_instruments():
     now = datetime.now(timezone.utc).strftime('%Y-%m-%dT%H:%M') 
 
-    current_bookings = Booking.query.filter(Booking.start_datetime > now).all()
+    current_bookings = Booking.query.all()
     current_bookings_list = []
     for booking in current_bookings:
         booking_dict = {
@@ -369,7 +368,6 @@ def get_humidity_data():
                 'time_stamp': formatted_datetime,
                 'humidity_data': record.humidity
             })
-        print(filtered_data)
     return filtered_data
 
 
@@ -390,9 +388,7 @@ def get_wear_values():
     # Return as a list of values
     return [wear_value_1, wear_value_2]
 
-def update_instrument_wear_values():
-    start_datetime, end_datetime = get_session_active()
-    
+def update_instrument_wear_values(roomData):    
     # Get the current humidity data
     humidity_data = get_humidity_data()
     
@@ -400,38 +396,20 @@ def update_instrument_wear_values():
         # If there's no humidity data, use a default or fallback value
         current_humidity = 60
     else:
-        # Assume you want the most recent humidity value
         current_humidity = humidity_data[-1]['humidity_data']
 
     # Calculate the wear increment based on humidity
     wear_increment = current_humidity * 0.01  # 1 percent humidity = 0.01 wear increment
 
-    if start_datetime and end_datetime:
-        # Get the list of booked instruments for the ongoing session
-        booked_instruments = db.session.query(booking_instrument).filter_by(booking_start_datetime=start_datetime).all()
-        booked_instrument_ids = [instrument.locker_id for instrument in booked_instruments]
-
-        # Update the wear value for each booked instrument
-        for locker_id in booked_instrument_ids:
-            instrument = Instrument.query.filter_by(locker_id=locker_id).first()
-            if instrument:
-                instrument.wear_value += Decimal(4 * wear_increment)  # Increase wear value by 0.5 for in-use instruments
-                db.session.commit()
-                print(f"Instrument wear value: {instrument.wear_value}")
-        
-        # Update wear value for instruments not booked during the active session
-        non_booked_instruments = Instrument.query.filter(Instrument.locker_id.notin_(booked_instrument_ids)).all()
-        for instrument in non_booked_instruments:
-            instrument.wear_value += Decimal(0.5 * wear_increment)   # Increase wear value by 0.1 for non-active instruments
-            db.session.commit()
-
-    else:
-        # If no active session, update wear value for all instruments
-        all_instruments = Instrument.query.all()
-        for instrument in all_instruments:
-            instrument.wear_value += Decimal(0.5 * wear_increment)   # Increase wear value by 0.1 for non-active instruments
-            db.session.commit()
-
+    instruments = Instrument.query.all()
+    for instrument in instruments:
+        for instrumentData in roomData["instrument_data"]:
+            if instrument.locker_id == instrumentData["locker_id"]:
+                if instrumentData["usage"]:
+                    wear_increment *= 5
+                break
+        instrument.wear_value += Decimal(wear_increment)
+    
 def update_event(event, event_name, severity):
 
     datetime_str = datetime.now(timezone.utc).strftime('%Y-%m-%dT%H:%M')
@@ -446,6 +424,7 @@ def update_event(event, event_name, severity):
     if event == "dropped":
         update_dropped = Events(timestamp=datetime_str, event_names=event_name , severity=severity)    
         db.session.add(update_dropped)
+        db.session.commit()
         ongoing_booking = Booking.query.filter(
             Booking.start_datetime == start_datetime,
             Booking.end_datetime == end_datetime
@@ -457,10 +436,9 @@ def update_event(event, event_name, severity):
             db.session.commit()
 
     if event == "door_broken_into":
-        if start_datetime is None and end_datetime is None:
-            update_door_broken_into = Events(timestamp=datetime_str, event_names=event_name, severity=severity)
-            db.session.add(update_door_broken_into)
-            db.session.commit
+        update_door_broken_into = Events(timestamp=datetime_str, event_names=event_name, severity=severity)
+        db.session.add(update_door_broken_into)
+        db.session.commit()
 
     if event == "high_humidity":
         # Get the current UTC time

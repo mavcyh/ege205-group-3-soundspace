@@ -5,7 +5,7 @@ from datetime import datetime, timezone
 
 roomData = {
     "room_door_status": None,
-    "instrument_data": [],
+    "instrument_data": [], # {"locker_id": "1", .....}, {"locker_id": "2", .....}
     "loitering_detected": False, 
     "item_dropped": False
 }
@@ -39,13 +39,18 @@ instrument_missing_trip = []
 @socketio.event
 def bbbwInstrumentLocker_Usage(data):
     global instrument_missing_trip
+    print(f"INSTRUMENT USAGE: {data["usage"]}")
     for index, instrument in enumerate(roomData["instrument_data"]):
         if instrument["locker_id"] == data["locker_id"]:
             roomData["instrument_data"][index]["usage"] = data["usage"]
-            return
+            break
     start_datetime, end_datetime = get_session_active()
-    if data["usage"] and not end_datetime:
+    if data["usage"] and not end_datetime and (data["locker_id"] not in instrument_missing_trip):
         instrument_missing_trip.append(data["locker_id"])
+        event = "instrument_missing"
+        update_event(event, f"Missing instrument (Locker {data["locker_id"]})", 2)
+        print(f"Missing instrument (Locker {data["locker_id"]})")
+        
         
 #endregion bbbwInstrumentLocker
 
@@ -57,7 +62,6 @@ def bbbwSessionInfo_updateVolumeLevel(data):
     if data["volume_level"] >= 10:
         socketio.emit("serverToSessionInfo_maximumVolumeExceeded", {})
     write_volume_level_data(data["volume_level"])
-    print(f"Volume level: {data["volume_level"]}")
 
 #endregion bbbwSessionInfo
 
@@ -70,12 +74,16 @@ def bbbwMiscellanous_updateRoomState(data):
     global loitering_detected_trip
     insert_humidity_data(data["humidity_level"])
     if data["motion_detected"] == True:
-        loitering_detected_trip = True
         start_datetime, end_datetime = get_session_active()
         if start_datetime and end_datetime:
             roomData["loitering_detected"] = False
         elif start_datetime is None and end_datetime is None:
             roomData["loitering_detected"] = True
+            if not loitering_detected_trip:
+                event = "loitering"
+                update_event(event, "Loitering Detected!", 1)
+                loitering_detected_trip = True
+                print("Loitering detected!")
 
     if data["humidity_level"] >= 75:
         event = "high_humidity"
@@ -86,6 +94,7 @@ def bbbwMiscellanous_deviceDropped():
     event = "dropped"
     update_event(event, "Device Dropped!", 2)
     roomData["item_dropped"] = True
+    print("Device dropped!")
 
 #endregion bbbwMiscellanous
 

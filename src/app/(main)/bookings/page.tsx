@@ -38,6 +38,8 @@ export default async function Bookings() {
     currentBookings.push({ start_datetime: new Date(current_booking.start_datetime), end_datetime: new Date(current_booking.end_datetime)}
   ))
 
+  currentBookings.sort((a, b) => a.start_datetime.getTime() - b.start_datetime.getTime());
+
   return (
       <>
         <Center>

@@ -77,7 +77,7 @@ def oled_x_offset(string):
 def update_OLED(seconds=0, status=None, end=False):
     Draw.rectangle((0, 0, Display.width - 1, Display.height - 1), outline=0, fill=0)
     if not end:
-        time_left = f"{str(int(seconds/360)).zfill(2)}H {str(int(seconds/60)).zfill(2)}M {str(seconds%60).zfill(2)}S"
+        time_left = f"{str(int(seconds/3600)).zfill(2)}H {str(int((seconds%3600)/60)).zfill(2)}M {str(seconds%60).zfill(2)}S"
         Draw.text((oled_x_offset(status), 12), " " + status, font=Font, fill=1)
         Draw.text((oled_x_offset(time_left), 22), " " + time_left, font=Font, fill=1)
     else:

@@ -72,12 +72,6 @@ class admin_session_volume_data(Resource):
         booking_start_datetime = nsApi.payload["start_datetime"]       
         return get_volume_data_by_start_datetime(booking_start_datetime)
 
-@nsAdmin.route("/humidity-data")
-class admin_humidity_data(Resource):
-    @nsApi.marshal_list_with(humidity_model)
-    def get(self):
-        return get_humidity_data()
-
 @nsAdmin.route("/get-events")
 class get_events_data(Resource):
     @nsApi.marshal_list_with(events_model)

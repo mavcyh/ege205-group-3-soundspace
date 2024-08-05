@@ -139,7 +139,7 @@ export function Dashboard() {
                   withDots={false}
                   xAxisLabel="Time"
                   yAxisLabel="Humidity (%)"
-                  yAxisProps={{domain: ['50', 'dataMax + 10']}}
+                  yAxisProps={{domain: ['dataMin - 10', 'dataMax + 10']}}
                 />
                 <Text className={classes.graphheading}>Volume Graph</Text>
                 {volumeData.length == 0 ? <Center><Text c={'gray'}>No Session Active</Text></Center>:

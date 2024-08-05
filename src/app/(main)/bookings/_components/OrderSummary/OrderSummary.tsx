@@ -5,6 +5,7 @@ import { IconCalendarClock, IconMail, IconAlertCircle } from "@tabler/icons-reac
 import classes from './OrderSummary.module.css';
 import { usePathname, useRouter } from "next/navigation";
 import { useState } from "react";
+import config from '@/config';
 
 interface Instrument {
   locker_id: string,
@@ -57,7 +58,7 @@ export const OrderSummary = ({ selectedChips, selectedInstruments }:
     }
     setCreateBookingLoading(true);
     try {
-      const response = await fetch("http://localhost:5000/api/create-booking", {
+      const response = await fetch(`http://${config.apiServerIp}:5000/api/create-booking`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json"
