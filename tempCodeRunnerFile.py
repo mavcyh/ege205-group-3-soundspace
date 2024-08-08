@@ -1,1 +1,0 @@
-    core_per_minute()

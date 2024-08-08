@@ -1,3 +1,5 @@
+![SoundSpace Logo](src/assets/soundspace-logo.jpg)
+
 # SoundSpace
 
 An IoT solution for renting music studios.
@@ -7,7 +9,7 @@ An IoT solution for renting music studios.
 
 ## Initial setup
 
-Open a *command prompt* terminal in the root directory of the project and run the following.<br>
+Open a *command prompt* terminal in the root directory of the project and run the following:
 ```bash
 # Creates a Python virtual environment
 python -m venv .venv
@@ -21,18 +23,22 @@ pip install -r requirements.txt
 
 # Installs necessary Node.js modules
 npm install
+
+# Creates a production build of the Next.js app
+npm run build
 ```
 
-In `src/config.js`, edit `apiServerIp` to match your IP address.
+If you are planning to view the website on a different device than which the Flask app is running on,  
+in `src/config.js`, edit `apiServerIp` to the IP address that the Flask app is running on.
 ```js
 const config = {
-    apiServerIp: "192.168.X.X"
+    apiServerIp: "localhost"
 };
 
 export default config;
 ```
 
-If running the code for the BeagleBone Black Wireless in `BBBW Code`, edit `SERVER_IP_ADDRESS` to match your IP address.
+For the code for the BeagleBone Black Wireless in `BBBW Code`, edit `SERVER_IP_ADDRESS` to the IP address that the Flask app is running on.
 
 ```python
 import ...
@@ -45,13 +51,15 @@ SERVER_IP_ADDRESS = "192.168.X.X"
 Open a terminal in the root directory of the project.
 
 ```bash
-# Starts the Flask server
+# Starts the Flask app on the IP address of the machine
 # Make sure the virtual environment is activated!
 python run-flask-app.py
 
-# Starts the NextJS server (development)
-npm run dev
+# Starts the Next.js app
+npm start
 ```
 
-Visit `localhost:5000` in a web browser the view the website.<br>
-To view Swagger UI (API documentation), visit `localhost:3000`.
+Visit `localhost:5000` in a web browser the view the website.
+To view the Swagger UI (API documentation), visit `localhost:3000`.
+
+Replace `localhost` with the IP address of which the Flask app is running on if viewing from a different device.
